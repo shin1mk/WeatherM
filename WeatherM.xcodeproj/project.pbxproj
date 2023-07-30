@@ -16,6 +16,9 @@
 		13C7306A2A76F0A4006FF6FD /* WeatherMUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C730692A76F0A4006FF6FD /* WeatherMUITests.swift */; };
 		13C7306C2A76F0A4006FF6FD /* WeatherMUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C7306B2A76F0A4006FF6FD /* WeatherMUITestsLaunchTests.swift */; };
 		13C7307C2A76F2E2006FF6FD /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C7307B2A76F2E2006FF6FD /* MainViewController.swift */; };
+		13F5677B2A77018D006DF976 /* Ubuntu-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 13F567792A77018D006DF976 /* Ubuntu-Regular.ttf */; };
+		13F5677C2A77018D006DF976 /* Ubuntu-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 13F5677A2A77018D006DF976 /* Ubuntu-Light.ttf */; };
+		13F5677E2A77038F006DF976 /* CustomFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5677D2A77038F006DF976 /* CustomFonts.swift */; };
 		6E091E40640C71CBF3968F0C /* Pods_WeatherM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD56645E5820850931320CBF /* Pods_WeatherM.framework */; };
 		88DE6AC9C20E12E6FD78263A /* Pods_WeatherM_WeatherMUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F3E80747E895E6679070407 /* Pods_WeatherM_WeatherMUITests.framework */; };
 		FA85D5C957DEF44995F99708 /* Pods_WeatherMTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA3152BFEE699F4C6140264E /* Pods_WeatherMTests.framework */; };
@@ -52,6 +55,9 @@
 		13C730692A76F0A4006FF6FD /* WeatherMUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherMUITests.swift; sourceTree = "<group>"; };
 		13C7306B2A76F0A4006FF6FD /* WeatherMUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherMUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		13C7307B2A76F2E2006FF6FD /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		13F567792A77018D006DF976 /* Ubuntu-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Ubuntu-Regular.ttf"; sourceTree = "<group>"; };
+		13F5677A2A77018D006DF976 /* Ubuntu-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Ubuntu-Light.ttf"; sourceTree = "<group>"; };
+		13F5677D2A77038F006DF976 /* CustomFonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFonts.swift; sourceTree = "<group>"; };
 		189368D98F405E009D5B415F /* Pods-WeatherM.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeatherM.debug.xcconfig"; path = "Target Support Files/Pods-WeatherM/Pods-WeatherM.debug.xcconfig"; sourceTree = "<group>"; };
 		5F3E80747E895E6679070407 /* Pods_WeatherM_WeatherMUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WeatherM_WeatherMUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A03CDBD78F478D2D8348353 /* Pods-WeatherMTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeatherMTests.release.xcconfig"; path = "Target Support Files/Pods-WeatherMTests/Pods-WeatherMTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -183,6 +189,9 @@
 		13C7307E2A76F5EC006FF6FD /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				13F5677A2A77018D006DF976 /* Ubuntu-Light.ttf */,
+				13F567792A77018D006DF976 /* Ubuntu-Regular.ttf */,
+				13F5677D2A77038F006DF976 /* CustomFonts.swift */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -340,6 +349,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13F5677C2A77018D006DF976 /* Ubuntu-Light.ttf in Resources */,
+				13F5677B2A77018D006DF976 /* Ubuntu-Regular.ttf in Resources */,
 				13C730552A76F0A4006FF6FD /* LaunchScreen.storyboard in Resources */,
 				13C730522A76F0A4006FF6FD /* Assets.xcassets in Resources */,
 			);
@@ -471,6 +482,7 @@
 			files = (
 				13C7307C2A76F2E2006FF6FD /* MainViewController.swift in Sources */,
 				13C730462A76F0A3006FF6FD /* AppDelegate.swift in Sources */,
+				13F5677E2A77038F006DF976 /* CustomFonts.swift in Sources */,
 				13C730502A76F0A3006FF6FD /* WeatherM.xcdatamodeld in Sources */,
 				13C730482A76F0A3006FF6FD /* SceneDelegate.swift in Sources */,
 			);
