@@ -40,23 +40,28 @@ final class MainViewController: UIViewController {
         locationLabel.textAlignment = .center
         return locationLabel
     }()
-    //MARK: locatilocationIcon
-    private let locationIconImageView: UIImageView = {
-        let locationIcon = Constants.Images.locationIconImageView
-        locationIcon.contentMode = .scaleAspectFit
-        return locationIcon
+    //MARK: locationIcon
+    private let locationIconButton: UIButton = {
+        let button = UIButton()
+        button.setBackgroundImage(UIImage(named: "icon_location"), for: .normal)
+        button.contentMode = .scaleAspectFit
+        button.addTarget(self, action: #selector(locationIconTapped), for: .touchUpInside) // обработчик событий
+        return button
     }()
     //MARK: searchIcon
-    private let searchIconImageView: UIImageView = {
-        let searchIcon = Constants.Images.searchIconImageView
-        searchIcon.contentMode = .scaleAspectFit
-        return searchIcon
+    private let searchIconButton: UIButton = {
+        let button = UIButton()
+        button.setBackgroundImage(UIImage(named: "icon_search"), for: .normal)
+        button.contentMode = .scaleAspectFit
+        button.addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside) // обработчик событий
+        return button
     }()
     //MARK: infoButton
     private let infoButton: UIButton = {
         let button = UIButton()
         button.setBackgroundImage(UIImage(named: "infoButton"), for: .normal)
         button.accessibilityIdentifier = "infoButton"
+        button.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside) // обработчик событий
         return button
     }()
     //MARK: Lifecycle
@@ -93,14 +98,16 @@ final class MainViewController: UIViewController {
             make.horizontalEdges.equalToSuperview().inset(30)
             make.height.equalTo(40)
         }
-        view.addSubview(locationIconImageView)
-        locationIconImageView.snp.makeConstraints{ make in
+        // locationIconButton
+        view.addSubview(locationIconButton)
+        locationIconButton.snp.makeConstraints{ make in
             make.bottom.equalTo(view.snp.bottom).inset(110)
             make.leading.equalTo(locationLabel).inset(70)
             make.height.equalTo(16)
         }
-        view.addSubview(searchIconImageView)
-        searchIconImageView.snp.makeConstraints{ make in
+        // searchIconButton
+        view.addSubview(searchIconButton)
+        searchIconButton.snp.makeConstraints{ make in
             make.bottom.equalTo(view.snp.bottom).inset(110)
             make.trailing.equalTo(locationLabel).offset(-70)
             make.height.equalTo(16)
@@ -114,7 +121,19 @@ final class MainViewController: UIViewController {
             make.height.equalTo(85)
         }
     }
-
+    //MARK: - METHODS
+    //MARK: Button Action
+    @objc private func infoButtonTapped() {
+        print("info_button")
+    }
+    //MARK: Icon Tap Action
+    @objc private func locationIconTapped() {
+        print("locationIcon tapped")
+    }
+    //MARK: Search Tap Action
+    @objc private func searchIconTapped() {
+        print("searchIcon tapped")
+    }
 } // end MainViewController
 //MARK: Extension
 extension MainViewController {
