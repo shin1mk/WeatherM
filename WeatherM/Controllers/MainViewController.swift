@@ -7,8 +7,12 @@
 
 import UIKit
 import SnapKit
+import CoreLocation
+
 
 final class MainViewController: UIViewController {
+    // core location
+    let locationManager = CLLocationManager()
     //MARK: backgroundImage
     private let backgroundImageView: UIImageView = {
         let backgroundImage = Constants.Images.backgroundImageView
@@ -45,7 +49,7 @@ final class MainViewController: UIViewController {
         let button = UIButton()
         button.setBackgroundImage(UIImage(named: "icon_location"), for: .normal)
         button.contentMode = .scaleAspectFit
-        button.addTarget(self, action: #selector(locationIconTapped), for: .touchUpInside) // обработчик событий
+        button.addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside) // обработчик событий
         return button
     }()
     //MARK: searchIcon
@@ -68,6 +72,8 @@ final class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupConstraints()
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -126,13 +132,13 @@ final class MainViewController: UIViewController {
     @objc private func infoButtonTapped() {
         print("info_button")
     }
-    //MARK: Icon Tap Action
-    @objc private func locationIconTapped() {
-        print("locationIcon tapped")
-    }
     //MARK: Search Tap Action
     @objc private func searchIconTapped() {
         print("searchIcon tapped")
+    }
+    //MARK: location tap action
+    @objc private func locationButtonTapped() {
+        locationManager.startUpdatingLocation()
     }
 } // end MainViewController
 //MARK: Extension
@@ -143,5 +149,37 @@ extension MainViewController {
             static let locationIconImageView = UIImageView(image: UIImage(named: "icon_location.png"))
             static let searchIconImageView = UIImageView(image: UIImage(named: "icon_search.png"))
         }
+    }
+}
+extension MainViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+            // Геолокация разрешена, вы можете выполнить запрос на получение геолокации здесь
+            break
+        case .denied, .restricted:
+            // Геолокация отклонена или ограничена, обработайте это соответствующим образом
+            break
+        default:
+            break
+        }
+    }
+
+    // Метод делегата для получения результатов геолокации
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        // Здесь вы можете использовать полученные координаты в переменной location
+        print("Latitude: \(location.coordinate.latitude), Longitude: \(location.coordinate.longitude)")
+        // Здесь вы можете использовать полученные координаты в переменной location
+        let latitude = location.coordinate.latitude
+        let longitude = location.coordinate.longitude
+        
+        // Обновление текста в locationLabel
+        locationLabel.text = "Latitude: \(latitude), Longitude: \(longitude)"
+    }
+
+    // Метод делегата для обработки ошибок геолокации
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Error getting location: \(error.localizedDescription)")
     }
 }
