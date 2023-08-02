@@ -9,10 +9,9 @@ import UIKit
 import SnapKit
 import CoreLocation
 
-
-final class MainViewController: UIViewController {
-    // core location
-    let locationManager = CLLocationManager()
+final class MainViewController: UIViewController, UISearchBarDelegate {
+    // location
+    private let locationManager = CLLocationManager()
     //MARK: backgroundImage
     private let backgroundImageView: UIImageView = {
         let backgroundImage = Constants.Images.backgroundImageView
@@ -41,6 +40,8 @@ final class MainViewController: UIViewController {
     private let locationLabel: UILabel = {
         let locationLabel = UILabel()
         locationLabel.text = "Location"
+        locationLabel.font = UIFont.ubuntuRegular(ofSize: 17)
+        locationLabel.textColor = .black
         locationLabel.textAlignment = .center
         return locationLabel
     }()
@@ -49,7 +50,6 @@ final class MainViewController: UIViewController {
         let button = UIButton()
         button.setBackgroundImage(UIImage(named: "icon_location"), for: .normal)
         button.contentMode = .scaleAspectFit
-        button.addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside) // обработчик событий
         return button
     }()
     //MARK: searchIcon
@@ -57,23 +57,32 @@ final class MainViewController: UIViewController {
         let button = UIButton()
         button.setBackgroundImage(UIImage(named: "icon_search"), for: .normal)
         button.contentMode = .scaleAspectFit
-        button.addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside) // обработчик событий
         return button
+    }()
+    //MARK: searchBar
+    private var isSearchBarVisible = false
+    private let searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "Search for a city"
+        searchBar.backgroundImage = UIImage()
+        return searchBar
     }()
     //MARK: infoButton
     private let infoButton: UIButton = {
         let button = UIButton()
         button.setBackgroundImage(UIImage(named: "infoButton"), for: .normal)
         button.accessibilityIdentifier = "infoButton"
-        button.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside) // обработчик событий
         return button
     }()
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupConstraints()
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
+        setupTargets()
+        setupLocationManager()
+        setupSearchBarDelegate()
+        setupTapGestureRecognizer()
+        hideSearchBar()
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -82,24 +91,31 @@ final class MainViewController: UIViewController {
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        // searchBar
+        view.addSubview(searchBar)
+        searchBar.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(100)
+            make.horizontalEdges.equalToSuperview().inset(30)
+            make.height.equalTo(40)
+        }
         // temerature label
         view.addSubview(temperatureLabel)
         temperatureLabel.snp.makeConstraints{ make in
-            make.centerX.equalTo(self.view)
+            make.centerX.equalTo(view)
             make.top.equalTo(view.snp.top).inset(500)
             make.horizontalEdges.equalToSuperview().inset(25)
         }
         // condition label
         view.addSubview(conditionLabel)
         conditionLabel.snp.makeConstraints{ make in
-            make.centerX.equalTo(self.view)
+            make.centerX.equalTo(view)
             make.bottom.equalTo(temperatureLabel.snp.bottom).offset(40)
             make.horizontalEdges.equalToSuperview().inset(25)
         }
         // location
         view.addSubview(locationLabel)
         locationLabel.snp.makeConstraints{ make in
-            make.centerX.equalTo(self.view)
+            make.centerX.equalTo(view)
             make.bottom.equalTo(view.snp.bottom).inset(100)
             make.horizontalEdges.equalToSuperview().inset(30)
             make.height.equalTo(40)
@@ -128,20 +144,36 @@ final class MainViewController: UIViewController {
         }
     }
     //MARK: - METHODS
-    //MARK: Button Action
-    @objc private func infoButtonTapped() {
-        print("info_button")
+    // скрыть при загрузке search bar
+    private func hideSearchBar() {
+        searchBar.isHidden = true
     }
-    //MARK: Search Tap Action
-    @objc private func searchIconTapped() {
-        print("searchIcon tapped")
-    }
-    //MARK: location tap action
-    @objc private func locationButtonTapped() {
-        locationManager.startUpdatingLocation()
-    }
+ 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 } // end MainViewController
-//MARK: Extension
+
+
+
+
+//MARK: Constants
 extension MainViewController {
     enum Constants {
         enum Images {
@@ -151,35 +183,99 @@ extension MainViewController {
         }
     }
 }
+//MARK: - геолокация
 extension MainViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         switch status {
         case .authorizedWhenInUse, .authorizedAlways:
-            // Геолокация разрешена, вы можете выполнить запрос на получение геолокации здесь
+            // Геолокация разрешена
             break
         case .denied, .restricted:
-            // Геолокация отклонена или ограничена, обработайте это соответствующим образом
+            // Геолокация отклонена
             break
         default:
             break
         }
     }
-
-    // Метод делегата для получения результатов геолокации
+    //результат геолокации
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        // Здесь вы можете использовать полученные координаты в переменной location
+        // выводим в консоль широту и долготу
         print("Latitude: \(location.coordinate.latitude), Longitude: \(location.coordinate.longitude)")
-        // Здесь вы можете использовать полученные координаты в переменной location
-        let latitude = location.coordinate.latitude
-        let longitude = location.coordinate.longitude
-        
-        // Обновление текста в locationLabel
-        locationLabel.text = "Latitude: \(latitude), Longitude: \(longitude)"
+        let geocoder = CLGeocoder()
+        // геокодирование
+        geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+            if let error = error {
+                print("Error \(error.localizedDescription)")
+                return
+            }
+            if let placemark = placemarks?.first {
+                // Получаем название города
+                if let city = placemark.locality, let country = placemark.country {
+                    print("City: \(city), Country: \(country)")
+                    // выводим в locationLabel
+                    self.locationLabel.text = "\(country), \(city)"
+                }
+            }
+        }
     }
-
-    // Метод делегата для обработки ошибок геолокации
+    // ошибки геол
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Error getting location: \(error.localizedDescription)")
+    }
+}
+//MARK: - targets/delegates/actions
+extension MainViewController {
+    //MARK: - Search Bar Delegate Setup
+    private func setupSearchBarDelegate() {
+        searchBar.delegate = self
+        locationManager.delegate = self
+    }
+    // target
+    private func setupTargets() {
+        locationIconButton.addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
+        searchIconButton.addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
+        infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+    }
+    
+    //MARK: location button tap action
+    private func setupLocationManager() {
+        locationManager.requestWhenInUseAuthorization()
+    }
+    //MARK: метод для вызова разрешение для гео
+    @objc private func locationButtonTapped() {
+        locationManager.startUpdatingLocation()
+    }
+    //MARK: Search button Tap Action
+    @objc private func searchIconTapped() {
+        print("searchIcon tapped")
+        isSearchBarVisible.toggle()
+        searchBar.isHidden = !isSearchBarVisible
+        // Show the keyboard
+        if isSearchBarVisible {
+            searchBar.becomeFirstResponder()
+        } else {
+            searchBar.resignFirstResponder()
+        }
+    }
+    //MARK: Button Action
+    @objc private func infoButtonTapped() {
+        print("info_button")
+    }
+}
+//MARK: - gesture recognizer
+extension MainViewController: UIGestureRecognizerDelegate {
+    private func setupTapGestureRecognizer() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tapGesture.delegate = self
+        view.addGestureRecognizer(tapGesture)
+    }
+    //MARK: - keyboard
+    @objc private func handleTap() {
+        // Скрываем клавиатуру
+        searchBar.resignFirstResponder()
+        // Скрываем UISearchBar
+        isSearchBarVisible = false
+        searchBar.isHidden = true
     }
 }
