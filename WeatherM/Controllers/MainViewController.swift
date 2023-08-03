@@ -40,7 +40,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
     private let locationLabel: UILabel = {
         let locationLabel = UILabel()
         locationLabel.text = "Location"
-        locationLabel.font = UIFont.ubuntuRegular(ofSize: 17)
+        locationLabel.font = UIFont.ubuntuMedium(ofSize: 17)
         locationLabel.textColor = .black
         locationLabel.textAlignment = .center
         return locationLabel
@@ -148,30 +148,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
     private func hideSearchBar() {
         searchBar.isHidden = true
     }
- 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 } // end MainViewController
-
-
-
 
 //MARK: Constants
 extension MainViewController {

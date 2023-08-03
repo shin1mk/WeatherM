@@ -15,4 +15,11 @@ extension UIFont {
     static func ubuntuRegular(ofSize size: CGFloat) -> UIFont? {
         return UIFont(name: "Ubuntu-Regular", size: size)
     }
+    static func ubuntuMedium(ofSize size: CGFloat) -> UIFont? {
+        return UIFont(name: "Ubuntu-Medium", size: size)
+    }
+    static func ubuntuBold(ofSize size: CGFloat) -> UIFont? {
+        return UIFont(name: "Ubuntu-Bold", size: size)
+    }
 }
+

@@ -8,6 +8,8 @@
 	<string>We need your location data to provide weather information</string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Ubuntu-Bold.ttf</string>
+		<string>Ubuntu-Medium.ttf</string>
 		<string>Ubuntu-Light.ttf</string>
 		<string>Ubuntu-Regular.ttf</string>
 	</array>
