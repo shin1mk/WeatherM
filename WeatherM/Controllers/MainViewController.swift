@@ -15,9 +15,20 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
     //MARK: backgroundImage
     private let backgroundImageView: UIImageView = {
         let backgroundImage = Constants.Images.backgroundImageView
-        backgroundImage.contentMode = .scaleAspectFill
+        backgroundImage.contentMode = .scaleAspectFit
         return backgroundImage
     }()
+    //MARK: - STONE VIEW
+    private let stoneView = StoneView()
+    //MARK: - Scroll View
+    private let scrollView: UIScrollView = {
+        var view = UIScrollView()
+        view.isScrollEnabled = true
+        view.alwaysBounceVertical = true
+        return view
+    }()
+    private let contentView = UIView()
+    
     //MARK: temperatureLabel
     private let temperatureLabel: UILabel = {
         let temperatureLabel = UILabel()
@@ -91,6 +102,21 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.centerX.equalTo(scrollView)
+            make.top.bottom.equalTo(scrollView).offset(10)
+        }
+        contentView.addSubview(stoneView)
+        stoneView.snp.makeConstraints { make in
+            make.centerX.equalTo(contentView)
+            make.trailing.leading.equalTo(contentView)
+            make.top.equalTo(contentView).offset(-150)
+        }
         // searchBar
         view.addSubview(searchBar)
         searchBar.snp.makeConstraints { make in
@@ -150,7 +176,6 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
     }
 
 } // end MainViewController
-
 //MARK: Constants
 extension MainViewController {
     enum Constants {
@@ -204,7 +229,7 @@ extension MainViewController: CLLocationManagerDelegate {
 }
 //MARK: - targets/delegates/actions
 extension MainViewController {
-    //MARK: - Search Bar Delegate Setup
+    //MARK: Search Bar Delegate Setup
     private func setupSearchBarDelegate() {
         searchBar.delegate = self
         locationManager.delegate = self
