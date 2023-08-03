@@ -10,16 +10,21 @@ import SnapKit
 import CoreLocation
 
 final class MainViewController: UIViewController, UISearchBarDelegate {
-    // location
+    //MARK: LOCATION VIEW
     private let locationManager = CLLocationManager()
+    
+    
     //MARK: backgroundImage
     private let backgroundImageView: UIImageView = {
         let backgroundImage = Constants.Images.backgroundImageView
         backgroundImage.contentMode = .scaleAspectFit
         return backgroundImage
     }()
-    //MARK: - STONE VIEW
+    
+    //MARK: - stone view
     private let stoneView = StoneView()
+    
+    
     //MARK: - Scroll View
     private let scrollView: UIScrollView = {
         var view = UIScrollView()
@@ -63,6 +68,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         button.contentMode = .scaleAspectFit
         return button
     }()
+    
+    
     //MARK: searchIcon
     private let searchIconButton: UIButton = {
         let button = UIButton()
@@ -106,22 +113,25 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        // scroll view
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.centerX.equalTo(scrollView)
             make.top.bottom.equalTo(scrollView).offset(10)
+            make.width.equalTo(scrollView)
         }
+        // content view
         contentView.addSubview(stoneView)
         stoneView.snp.makeConstraints { make in
             make.centerX.equalTo(contentView)
             make.trailing.leading.equalTo(contentView)
-            make.top.equalTo(contentView).offset(-150)
+            make.top.equalTo(contentView).offset(-120)
         }
         // searchBar
-        view.addSubview(searchBar)
+        contentView.addSubview(searchBar)
         searchBar.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(100)
-            make.horizontalEdges.equalToSuperview().inset(30)
+            make.top.equalToSuperview().offset(-20)
+            make.horizontalEdges.equalToSuperview().inset(20)
             make.height.equalTo(40)
         }
         // temerature label
