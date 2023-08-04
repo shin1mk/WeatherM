@@ -19,6 +19,11 @@
 		13C7307C2A76F2E2006FF6FD /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C7307B2A76F2E2006FF6FD /* MainViewController.swift */; };
 		13E8A6DF2A7B9DD500519FDF /* Ubuntu-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 13E8A6DD2A7B9DD500519FDF /* Ubuntu-Bold.ttf */; };
 		13E8A6E02A7B9DD500519FDF /* Ubuntu-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 13E8A6DE2A7B9DD500519FDF /* Ubuntu-Medium.ttf */; };
+		13F418E52A7C60FA00E6C7C8 /* WeatherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F418E42A7C60FA00E6C7C8 /* WeatherView.swift */; };
+		13F418E72A7C614200E6C7C8 /* LocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F418E62A7C614200E6C7C8 /* LocationView.swift */; };
+		13F418E92A7C616500E6C7C8 /* InfoButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F418E82A7C616500E6C7C8 /* InfoButton.swift */; };
+		13F418EB2A7C618300E6C7C8 /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F418EA2A7C618300E6C7C8 /* InfoView.swift */; };
+		13F418ED2A7C61C900E6C7C8 /* WeatherOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F418EC2A7C61C900E6C7C8 /* WeatherOperations.swift */; };
 		13F5677B2A77018D006DF976 /* Ubuntu-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 13F567792A77018D006DF976 /* Ubuntu-Regular.ttf */; };
 		13F5677C2A77018D006DF976 /* Ubuntu-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 13F5677A2A77018D006DF976 /* Ubuntu-Light.ttf */; };
 		13F5677E2A77038F006DF976 /* CustomFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5677D2A77038F006DF976 /* CustomFonts.swift */; };
@@ -61,6 +66,11 @@
 		13C7307B2A76F2E2006FF6FD /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		13E8A6DD2A7B9DD500519FDF /* Ubuntu-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Ubuntu-Bold.ttf"; sourceTree = "<group>"; };
 		13E8A6DE2A7B9DD500519FDF /* Ubuntu-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Ubuntu-Medium.ttf"; sourceTree = "<group>"; };
+		13F418E42A7C60FA00E6C7C8 /* WeatherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherView.swift; sourceTree = "<group>"; };
+		13F418E62A7C614200E6C7C8 /* LocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationView.swift; sourceTree = "<group>"; };
+		13F418E82A7C616500E6C7C8 /* InfoButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoButton.swift; sourceTree = "<group>"; };
+		13F418EA2A7C618300E6C7C8 /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
+		13F418EC2A7C61C900E6C7C8 /* WeatherOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherOperations.swift; sourceTree = "<group>"; };
 		13F567792A77018D006DF976 /* Ubuntu-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Ubuntu-Regular.ttf"; sourceTree = "<group>"; };
 		13F5677A2A77018D006DF976 /* Ubuntu-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Ubuntu-Light.ttf"; sourceTree = "<group>"; };
 		13F5677D2A77038F006DF976 /* CustomFonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFonts.swift; sourceTree = "<group>"; };
@@ -214,6 +224,7 @@
 		13C730802A76F60B006FF6FD /* Operations */ = {
 			isa = PBXGroup;
 			children = (
+				13F418EC2A7C61C900E6C7C8 /* WeatherOperations.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -222,6 +233,10 @@
 			isa = PBXGroup;
 			children = (
 				13B6BD162A7BF2FB003236E7 /* StoneView.swift */,
+				13F418E42A7C60FA00E6C7C8 /* WeatherView.swift */,
+				13F418E62A7C614200E6C7C8 /* LocationView.swift */,
+				13F418E82A7C616500E6C7C8 /* InfoButton.swift */,
+				13F418EA2A7C618300E6C7C8 /* InfoView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -492,11 +507,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				13C7307C2A76F2E2006FF6FD /* MainViewController.swift in Sources */,
+				13F418E72A7C614200E6C7C8 /* LocationView.swift in Sources */,
 				13C730462A76F0A3006FF6FD /* AppDelegate.swift in Sources */,
+				13F418ED2A7C61C900E6C7C8 /* WeatherOperations.swift in Sources */,
 				13F5677E2A77038F006DF976 /* CustomFonts.swift in Sources */,
 				13C730502A76F0A3006FF6FD /* WeatherM.xcdatamodeld in Sources */,
 				13B6BD172A7BF2FB003236E7 /* StoneView.swift in Sources */,
+				13F418E52A7C60FA00E6C7C8 /* WeatherView.swift in Sources */,
 				13C730482A76F0A3006FF6FD /* SceneDelegate.swift in Sources */,
+				13F418EB2A7C618300E6C7C8 /* InfoView.swift in Sources */,
+				13F418E92A7C616500E6C7C8 /* InfoButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

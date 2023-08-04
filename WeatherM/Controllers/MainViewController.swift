@@ -10,21 +10,20 @@ import SnapKit
 import CoreLocation
 
 final class MainViewController: UIViewController, UISearchBarDelegate {
-    //MARK: LOCATION VIEW
+    //MARK: - import view's
+    private let stoneView = StoneView()
+    private let weatherView = WeatherView()
+    private let locationView = LocationView()
+    private let infoButton = InfoButton()
+    private let infoView = InfoView()
+    //MARK: Location
     private let locationManager = CLLocationManager()
-    
-    
     //MARK: backgroundImage
     private let backgroundImageView: UIImageView = {
-        let backgroundImage = Constants.Images.backgroundImageView
+        let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
         return backgroundImage
     }()
-    
-    //MARK: - stone view
-    private let stoneView = StoneView()
-    
-    
     //MARK: - Scroll View
     private let scrollView: UIScrollView = {
         var view = UIScrollView()
@@ -33,64 +32,13 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         return view
     }()
     private let contentView = UIView()
-    
-    //MARK: temperatureLabel
-    private let temperatureLabel: UILabel = {
-        let temperatureLabel = UILabel()
-        temperatureLabel.text = "20°"
-        temperatureLabel.font = UIFont.ubuntuRegular(ofSize: 83)
-        temperatureLabel.textColor = .black
-        temperatureLabel.textAlignment = .left
-        return temperatureLabel
-    }()
-    //MARK: conditionLabel
-    private let conditionLabel: UILabel = {
-        let conditionLabel = UILabel()
-        conditionLabel.text = "wind"
-        conditionLabel.font = UIFont.ubuntuLight(ofSize: 36)
-        conditionLabel.textColor = .black
-        conditionLabel.textAlignment = .left
-        return conditionLabel
-    }()
-    //MARK: locationLabel
-    private let locationLabel: UILabel = {
-        let locationLabel = UILabel()
-        locationLabel.text = "Location"
-        locationLabel.font = UIFont.ubuntuMedium(ofSize: 17)
-        locationLabel.textColor = .black
-        locationLabel.textAlignment = .center
-        return locationLabel
-    }()
-    //MARK: locationIcon
-    private let locationIconButton: UIButton = {
-        let button = UIButton()
-        button.setBackgroundImage(UIImage(named: "icon_location"), for: .normal)
-        button.contentMode = .scaleAspectFit
-        return button
-    }()
-    
-    
-    //MARK: searchIcon
-    private let searchIconButton: UIButton = {
-        let button = UIButton()
-        button.setBackgroundImage(UIImage(named: "icon_search"), for: .normal)
-        button.contentMode = .scaleAspectFit
-        return button
-    }()
-    //MARK: searchBar
+    //MARK: SearchBar
     private var isSearchBarVisible = false
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "Search for a city"
         searchBar.backgroundImage = UIImage()
         return searchBar
-    }()
-    //MARK: infoButton
-    private let infoButton: UIButton = {
-        let button = UIButton()
-        button.setBackgroundImage(UIImage(named: "infoButton"), for: .normal)
-        button.accessibilityIdentifier = "infoButton"
-        return button
     }()
     //MARK: Lifecycle
     override func viewDidLoad() {
@@ -101,6 +49,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         setupSearchBarDelegate()
         setupTapGestureRecognizer()
         hideSearchBar()
+        infoView.isHidden = true
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -109,68 +58,48 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        // scroll view
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        // scroll view
+        // content view
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.centerX.equalTo(scrollView)
-            make.top.bottom.equalTo(scrollView).offset(10)
+            make.top.bottom.equalTo(scrollView)
             make.width.equalTo(scrollView)
         }
-        // content view
+        // stone view
         contentView.addSubview(stoneView)
         stoneView.snp.makeConstraints { make in
             make.centerX.equalTo(contentView)
             make.trailing.leading.equalTo(contentView)
-            make.top.equalTo(contentView).offset(-120)
+            make.top.equalTo(contentView).offset(-100)
         }
         // searchBar
         contentView.addSubview(searchBar)
         searchBar.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(-20)
-            make.horizontalEdges.equalToSuperview().inset(20)
+            make.horizontalEdges.equalToSuperview().inset(10)
             make.height.equalTo(40)
         }
-        // temerature label
-        view.addSubview(temperatureLabel)
-        temperatureLabel.snp.makeConstraints{ make in
+        // weather view
+        view.addSubview(weatherView)
+        weatherView.snp.makeConstraints { make in
             make.centerX.equalTo(view)
-            make.top.equalTo(view.snp.top).inset(500)
+            make.bottom.equalTo(view.snp.bottom).inset(350)
             make.horizontalEdges.equalToSuperview().inset(25)
         }
-        // condition label
-        view.addSubview(conditionLabel)
-        conditionLabel.snp.makeConstraints{ make in
-            make.centerX.equalTo(view)
-            make.bottom.equalTo(temperatureLabel.snp.bottom).offset(40)
-            make.horizontalEdges.equalToSuperview().inset(25)
-        }
-        // location
-        view.addSubview(locationLabel)
-        locationLabel.snp.makeConstraints{ make in
-            make.centerX.equalTo(view)
+        // location view
+        view.addSubview(locationView)
+        locationView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
             make.bottom.equalTo(view.snp.bottom).inset(100)
             make.horizontalEdges.equalToSuperview().inset(30)
             make.height.equalTo(40)
         }
-        // locationIconButton
-        view.addSubview(locationIconButton)
-        locationIconButton.snp.makeConstraints{ make in
-            make.bottom.equalTo(view.snp.bottom).inset(110)
-            make.leading.equalTo(locationLabel).inset(70)
-            make.height.equalTo(16)
-        }
-        // searchIconButton
-        view.addSubview(searchIconButton)
-        searchIconButton.snp.makeConstraints{ make in
-            make.bottom.equalTo(view.snp.bottom).inset(110)
-            make.trailing.equalTo(locationLabel).offset(-70)
-            make.height.equalTo(16)
-        }
-        // button
+        // info button
         view.addSubview(infoButton)
         infoButton.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -178,24 +107,21 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(40)
             make.height.equalTo(85)
         }
+        // Info View
+        view.addSubview(infoView)
+        infoView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.width.equalTo(350)
+            make.height.equalTo(450)
+        }
     }
-    //MARK: - METHODS
+    //MARK: Methods
     // скрыть при загрузке search bar
     private func hideSearchBar() {
         searchBar.isHidden = true
     }
-
 } // end MainViewController
-//MARK: Constants
-extension MainViewController {
-    enum Constants {
-        enum Images {
-            static let backgroundImageView = UIImageView(image: UIImage(named: "image_background.png"))
-            static let locationIconImageView = UIImageView(image: UIImage(named: "icon_location.png"))
-            static let searchIconImageView = UIImageView(image: UIImage(named: "icon_search.png"))
-        }
-    }
-}
 //MARK: - геолокация
 extension MainViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -227,14 +153,10 @@ extension MainViewController: CLLocationManagerDelegate {
                 if let city = placemark.locality, let country = placemark.country {
                     print("City: \(city), Country: \(country)")
                     // выводим в locationLabel
-                    self.locationLabel.text = "\(country), \(city)"
+                    self.locationView.setLocationLabelText("\(country), \(city)")
                 }
             }
         }
-    }
-    // ошибки геол
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Error getting location: \(error.localizedDescription)")
     }
 }
 //MARK: - targets/delegates/actions
@@ -246,9 +168,9 @@ extension MainViewController {
     }
     // target
     private func setupTargets() {
-        locationIconButton.addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
-        searchIconButton.addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
-        infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+        locationView.getLocationIconButton().addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
+        locationView.getSearchIconButton().addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
+        infoButton.infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
     }
     
     //MARK: location button tap action
@@ -271,9 +193,10 @@ extension MainViewController {
             searchBar.resignFirstResponder()
         }
     }
-    //MARK: Button Action
+    //MARK: Info Button Action
     @objc private func infoButtonTapped() {
         print("info_button")
+        infoView.isHidden = !infoView.isHidden
     }
 }
 //MARK: - gesture recognizer
