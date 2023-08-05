@@ -12,7 +12,7 @@ final class WeatherView: UIView {
     //MARK: Properties
     private let temperatureLabel: UILabel = {
         let temperatureLabel = UILabel()
-        temperatureLabel.text = "-°"
+        temperatureLabel.text = "--°"
         temperatureLabel.font = UIFont.ubuntuRegular(ofSize: 83)
         temperatureLabel.textColor = .black
         temperatureLabel.textAlignment = .left
@@ -20,7 +20,7 @@ final class WeatherView: UIView {
     }()
     private let conditionLabel: UILabel = {
         let conditionLabel = UILabel()
-        conditionLabel.text = "-"
+        conditionLabel.text = "condition"
         conditionLabel.font = UIFont.ubuntuLight(ofSize: 36)
         conditionLabel.textColor = .black
         conditionLabel.textAlignment = .left
@@ -31,6 +31,7 @@ final class WeatherView: UIView {
         super.init(frame: .zero)
         setupConstraints()
     }
+    
     required init?(coder aDecoder: NSCoder) {
         return nil
     }

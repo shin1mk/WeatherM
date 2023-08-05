@@ -49,7 +49,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         setupLocationManager()
         setupSearchBarDelegate()
         setupTapGestureRecognizer()
-        hideUIComponents()
+        hideComponents()
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -118,7 +118,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
     }
     //MARK: Methods
     // скрыть при загрузке search bar
-    private func hideUIComponents() {
+    private func hideComponents() {
         searchBar.isHidden = true
         infoView.isHidden = true
     }
