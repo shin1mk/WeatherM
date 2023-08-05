@@ -49,9 +49,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         setupLocationManager()
         setupSearchBarDelegate()
         setupTapGestureRecognizer()
-        hideSearchBar()
-        infoView.isHidden = true
-//        weatherOperations.fetchWeather()
+        hideUIComponents()
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -120,8 +118,9 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
     }
     //MARK: Methods
     // скрыть при загрузке search bar
-    private func hideSearchBar() {
+    private func hideUIComponents() {
         searchBar.isHidden = true
+        infoView.isHidden = true
     }
 } // end MainViewController
 //MARK: - геолокация
@@ -138,60 +137,38 @@ extension MainViewController: CLLocationManagerDelegate {
             break
         }
     }
-//    //результат геолокации
-//    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        guard let location = locations.last else { return }
-//        // выводим в консоль широту и долготу
-//        print("Latitude: \(location.coordinate.latitude), Longitude: \(location.coordinate.longitude)")
-//        let geocoder = CLGeocoder()
-//        // геокодирование
-//        geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
-//            if let error = error {
-//                print("Error \(error.localizedDescription)")
-//                return
-//            }
-//            if let placemark = placemarks?.first {
-//                // Получаем название города
-//                if let city = placemark.locality, let countryCode = placemark.isoCountryCode {
-//                    print("City: \(city), Country: \(countryCode)")
-//                    // выводим в locationLabel
-//                    self.locationView.setLocationLabelText("\(city), \(countryCode)")
-//
-//                    // Вызываем функцию fetchWeather() с полученными данными о городе и стране
-//                    WeatherOperations().fetchWeather(for: city, countryCode: countryCode)
-//                }
-//            }
-//        }
-//    }
+    //результат геолокации
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        // выводим в консоль широту и долготу
+        // Выводим в консоль широту и долготу
         print("Latitude: \(location.coordinate.latitude), Longitude: \(location.coordinate.longitude)")
         let geocoder = CLGeocoder()
-        // геокодирование
+        // Геокодирование
         geocoder.reverseGeocodeLocation(location) { [weak self] (placemarks, error) in
             if let error = error {
                 print("Error \(error.localizedDescription)")
                 return
             }
             if let placemark = placemarks?.first {
-                // Получаем название города
-                if let city = placemark.locality, let countryCode = placemark.isoCountryCode {
-                    print("City: \(city), Country: \(countryCode)")
-                    // выводим в locationLabel
-                    self?.locationView.setLocationLabelText("\(city), \(countryCode)")
+                // Получаем название города и страны
+                if let city = placemark.locality, let country = placemark.country {
+                    print("City: \(city), Country: \(country)")
+                    // Объединяем название города и страны
+                    let locationString = "\(city), \(country)"
+                    // Выводим в locationLabel
+                    self?.locationView.setLocationLabelText(locationString)
 
                     // Вызываем функцию fetchWeather() с полученными данными о городе и стране
-                    WeatherOperations().fetchWeather(for: city, countryCode: countryCode) { temperature in
+                    WeatherOperations().fetchWeather(for: city, countryCode: placemark.isoCountryCode ?? "") { temperature, weatherDescription in
                         DispatchQueue.main.async {
-                            self?.weatherView.temperatureLabel.text = "\(temperature)°"
+                            self?.weatherView.setTemperature(temperature: "\(temperature)°")
+                            self?.weatherView.setCondition(condition: weatherDescription)
                         }
                     }
                 }
             }
         }
     }
-
 }
 //MARK: - targets/delegates/actions
 extension MainViewController {
@@ -206,7 +183,6 @@ extension MainViewController {
         locationView.getSearchIconButton().addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
         infoButton.infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
     }
-    
     //MARK: location button tap action
     private func setupLocationManager() {
         locationManager.requestWhenInUseAuthorization()
@@ -249,5 +225,3 @@ extension MainViewController: UIGestureRecognizerDelegate {
         searchBar.isHidden = true
     }
 }
-
-

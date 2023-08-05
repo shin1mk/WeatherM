@@ -10,7 +10,7 @@ import SnapKit
 
 final class WeatherView: UIView {
     //MARK: Properties
-     let temperatureLabel: UILabel = {
+    private let temperatureLabel: UILabel = {
         let temperatureLabel = UILabel()
         temperatureLabel.text = "-°"
         temperatureLabel.font = UIFont.ubuntuRegular(ofSize: 83)
@@ -20,7 +20,7 @@ final class WeatherView: UIView {
     }()
     private let conditionLabel: UILabel = {
         let conditionLabel = UILabel()
-        conditionLabel.text = "sunny"
+        conditionLabel.text = "-"
         conditionLabel.font = UIFont.ubuntuLight(ofSize: 36)
         conditionLabel.textColor = .black
         conditionLabel.textAlignment = .left
@@ -47,11 +47,12 @@ final class WeatherView: UIView {
             make.horizontalEdges.equalToSuperview()
         }
     }
-//    func setTemperature(temperature: String) {
-//        temperatureLabel.text = temperature
-//    }
-//
-//    func setCondition(condition: String) {
-//        conditionLabel.text = condition
-//    }
+    
+    func setTemperature(temperature: String) {
+        temperatureLabel.text = temperature
+    }
+
+    func setCondition(condition: String) {
+        conditionLabel.text = condition
+    }
 }
