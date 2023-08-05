@@ -35,6 +35,7 @@ final class LocationView: UIView {
         super.init(frame: .zero)
         setupConstraints()
     }
+    
     required init?(coder aDecoder: NSCoder) {
         return nil
     }

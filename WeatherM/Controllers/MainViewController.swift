@@ -117,7 +117,6 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         }
     }
     //MARK: Methods
-    // скрыть при загрузке search bar
     private func hideComponents() {
         searchBar.isHidden = true
         infoView.isHidden = true
@@ -128,10 +127,10 @@ extension MainViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         switch status {
         case .authorizedWhenInUse, .authorizedAlways:
-            // Геолокация разрешена
+            // Гео разрешена
             break
         case .denied, .restricted:
-            // Геолокация отклонена
+            // Гео отклонена
             break
         default:
             break
@@ -153,12 +152,11 @@ extension MainViewController: CLLocationManagerDelegate {
                 // Получаем название города и страны
                 if let city = placemark.locality, let country = placemark.country {
                     print("City: \(city), Country: \(country)")
-                    // Объединяем название города и страны
+                    // Объединяем город и страну
                     let locationString = "\(city), \(country)"
                     // Выводим в locationLabel
                     self?.locationView.setLocationLabelText(locationString)
-
-                    // Вызываем функцию fetchWeather() с полученными данными о городе и стране
+                    // Вызываем функцию fetchWeather с данными о городе и стране
                     WeatherOperations().fetchWeather(for: city, countryCode: placemark.isoCountryCode ?? "") { temperature, weatherDescription in
                         DispatchQueue.main.async {
                             self?.weatherView.setTemperature(temperature: "\(temperature)°")
@@ -181,7 +179,7 @@ extension MainViewController {
     private func setupTargets() {
         locationView.getLocationIconButton().addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
         locationView.getSearchIconButton().addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
-        infoButton.infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+        infoButton.getInfoButton().addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
     }
     //MARK: location button tap action
     private func setupLocationManager() {

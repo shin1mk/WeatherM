@@ -10,7 +10,7 @@ import SnapKit
 
 final class InfoButton: UIView {
     //MARK: Properties
-    let infoButton: UIButton = {
+    private let infoButton: UIButton = {
         let button = UIButton()
         button.setBackgroundImage(UIImage(named: "infoButton"), for: .normal)
         button.accessibilityIdentifier = "infoButton"
@@ -33,5 +33,9 @@ final class InfoButton: UIView {
             make.horizontalEdges.equalToSuperview()
             make.height.equalTo(85)
         }
+    }
+    
+    func getInfoButton() -> UIButton {
+        return infoButton
     }
 }
