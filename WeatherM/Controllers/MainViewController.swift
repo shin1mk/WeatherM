@@ -138,14 +138,38 @@ extension MainViewController: CLLocationManagerDelegate {
             break
         }
     }
-    //результат геолокации
+//    //результат геолокации
+//    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+//        guard let location = locations.last else { return }
+//        // выводим в консоль широту и долготу
+//        print("Latitude: \(location.coordinate.latitude), Longitude: \(location.coordinate.longitude)")
+//        let geocoder = CLGeocoder()
+//        // геокодирование
+//        geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+//            if let error = error {
+//                print("Error \(error.localizedDescription)")
+//                return
+//            }
+//            if let placemark = placemarks?.first {
+//                // Получаем название города
+//                if let city = placemark.locality, let countryCode = placemark.isoCountryCode {
+//                    print("City: \(city), Country: \(countryCode)")
+//                    // выводим в locationLabel
+//                    self.locationView.setLocationLabelText("\(city), \(countryCode)")
+//
+//                    // Вызываем функцию fetchWeather() с полученными данными о городе и стране
+//                    WeatherOperations().fetchWeather(for: city, countryCode: countryCode)
+//                }
+//            }
+//        }
+//    }
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         // выводим в консоль широту и долготу
         print("Latitude: \(location.coordinate.latitude), Longitude: \(location.coordinate.longitude)")
         let geocoder = CLGeocoder()
         // геокодирование
-        geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+        geocoder.reverseGeocodeLocation(location) { [weak self] (placemarks, error) in
             if let error = error {
                 print("Error \(error.localizedDescription)")
                 return
@@ -155,15 +179,19 @@ extension MainViewController: CLLocationManagerDelegate {
                 if let city = placemark.locality, let countryCode = placemark.isoCountryCode {
                     print("City: \(city), Country: \(countryCode)")
                     // выводим в locationLabel
-                    self.locationView.setLocationLabelText("\(countryCode), \(city)")
-                    
-                    
+                    self?.locationView.setLocationLabelText("\(city), \(countryCode)")
+
                     // Вызываем функцию fetchWeather() с полученными данными о городе и стране
-                    WeatherOperations().fetchWeather(for: city, countryCode: countryCode)
+                    WeatherOperations().fetchWeather(for: city, countryCode: countryCode) { temperature in
+                        DispatchQueue.main.async {
+                            self?.weatherView.temperatureLabel.text = "\(temperature)°"
+                        }
+                    }
                 }
             }
         }
     }
+
 }
 //MARK: - targets/delegates/actions
 extension MainViewController {

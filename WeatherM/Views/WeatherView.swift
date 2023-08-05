@@ -10,9 +10,9 @@ import SnapKit
 
 final class WeatherView: UIView {
     //MARK: Properties
-    private let temperatureLabel: UILabel = {
+     let temperatureLabel: UILabel = {
         let temperatureLabel = UILabel()
-        temperatureLabel.text = "20°"
+        temperatureLabel.text = "-°"
         temperatureLabel.font = UIFont.ubuntuRegular(ofSize: 83)
         temperatureLabel.textColor = .black
         temperatureLabel.textAlignment = .left
