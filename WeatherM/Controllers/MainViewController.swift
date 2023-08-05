@@ -16,6 +16,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
     private let locationView = LocationView()
     private let infoButton = InfoButton()
     private let infoView = InfoView()
+    private let weatherOperations = WeatherOperations()
     //MARK: Location
     private let locationManager = CLLocationManager()
     //MARK: backgroundImage
@@ -50,6 +51,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         setupTapGestureRecognizer()
         hideSearchBar()
         infoView.isHidden = true
+//        weatherOperations.fetchWeather()
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -150,10 +152,14 @@ extension MainViewController: CLLocationManagerDelegate {
             }
             if let placemark = placemarks?.first {
                 // Получаем название города
-                if let city = placemark.locality, let country = placemark.country {
-                    print("City: \(city), Country: \(country)")
+                if let city = placemark.locality, let countryCode = placemark.isoCountryCode {
+                    print("City: \(city), Country: \(countryCode)")
                     // выводим в locationLabel
-                    self.locationView.setLocationLabelText("\(country), \(city)")
+                    self.locationView.setLocationLabelText("\(countryCode), \(city)")
+                    
+                    
+                    // Вызываем функцию fetchWeather() с полученными данными о городе и стране
+                    WeatherOperations().fetchWeather(for: city, countryCode: countryCode)
                 }
             }
         }
@@ -215,3 +221,5 @@ extension MainViewController: UIGestureRecognizerDelegate {
         searchBar.isHidden = true
     }
 }
+
+

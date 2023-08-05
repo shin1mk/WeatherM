@@ -53,4 +53,3 @@ final class InfoView: UIView {
         isHidden = true
     }
 }
-
