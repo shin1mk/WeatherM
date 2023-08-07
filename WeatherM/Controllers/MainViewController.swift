@@ -10,14 +10,13 @@ import SnapKit
 import CoreLocation
 
 final class MainViewController: UIViewController, UISearchBarDelegate {
-    
     //MARK: - import view's
     private let stoneView = StoneView()
     private let weatherView = WeatherView()
+    private let weatherOperations = WeatherOperations()
     private let locationView = LocationView()
     private let infoButton = InfoButton()
     private let infoView = InfoView()
-    private let weatherOperations = WeatherOperations()
     //MARK: Location
     private let locationManager = CLLocationManager()
     //MARK: backgroundImage
@@ -42,6 +41,12 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         searchBar.backgroundImage = UIImage()
         return searchBar
     }()
+    //MARK: state
+    private var currentBackgroundState: State = .normal {
+        didSet {
+            updateBackgroundImage()
+        }
+    }
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -122,60 +127,6 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         searchBar.isHidden = true
         infoView.isHidden = true
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // MARK: STATE
-    enum State: Int {
-        case normal
-        case cracks
-        case snow
-        case wet
-    }
-    
-    private var currentBackgroundState: State = .normal {
-        didSet {
-            updateBackgroundImage()
-        }
-    }
-    
-    private func updateBackgroundImage() {
-        switch currentBackgroundState {
-        case .normal:
-            stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
-        case .cracks:
-            stoneView.setStoneImage(UIImage(named: "image_stone_cracks.png"))
-        case .snow:
-            stoneView.setStoneImage(UIImage(named: "image_stone_snow.png"))
-        case .wet:
-            stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
-        }
-    }
-    
-    private func changeBackgroundState(to state: State) {
-        currentBackgroundState = state
-    }
-    
-    
-    
-    
-    
 } // end MainViewController
 //MARK: - геолокация
 extension MainViewController: CLLocationManagerDelegate {
@@ -217,15 +168,6 @@ extension MainViewController: CLLocationManagerDelegate {
                             self?.weatherView.setTemperature(temperature: "\(temperature)°")
                             self?.weatherView.setCondition(condition: weatherDescription)
                             
-                            // Determine the State based on the weather description
-//                            var newState: State = .normal
-//                            if weatherDescription.contains("snow") {
-//                                newState = .snow
-//                            } else if weatherDescription.contains("rain") || weatherDescription.contains("shower") {
-//                                newState = .wet
-//                            } else if weatherDescription.contains("cloud") || weatherDescription.contains("overcast") {
-//                                newState = .cracks
-//                            }
                             var newState: State
                             switch weatherDescription {
                             case let description where description.contains("snow"):
@@ -237,9 +179,8 @@ extension MainViewController: CLLocationManagerDelegate {
                             default:
                                 newState = .normal
                             }
-                            // Update the background state on the main thread
+                            // update background
                             self?.changeBackgroundState(to: newState)
-                            
                         }
                     }
                 }
@@ -283,18 +224,7 @@ extension MainViewController {
     //MARK: Info Button Action
     @objc private func infoButtonTapped() {
         print("info_button")
-        //        infoView.isHidden = !infoView.isHidden
-        // state
-        switch currentBackgroundState {
-        case .normal:
-            currentBackgroundState = .cracks
-        case .cracks:
-            currentBackgroundState = .snow
-        case .snow:
-            currentBackgroundState = .wet
-        case .wet:
-            currentBackgroundState = .normal
-        }
+        infoView.isHidden = !infoView.isHidden
     }
 }
 //MARK: - gesture recognizer
@@ -311,5 +241,31 @@ extension MainViewController: UIGestureRecognizerDelegate {
         // Скрываем UISearchBar
         isSearchBarVisible = false
         searchBar.isHidden = true
+    }
+}
+// MARK: - State Extension
+extension MainViewController {
+    enum State: Int {
+        case normal
+        case cracks
+        case snow
+        case wet
+    }
+
+    private func updateBackgroundImage() {
+        switch currentBackgroundState {
+        case .normal:
+            self.stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
+        case .cracks:
+            self.stoneView.setStoneImage(UIImage(named: "image_stone_cracks.png"))
+        case .snow:
+            self.stoneView.setStoneImage(UIImage(named: "image_stone_snow.png"))
+        case .wet:
+            self.stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
+        }
+    }
+
+    private func changeBackgroundState(to state: State) {
+        currentBackgroundState = state
     }
 }
