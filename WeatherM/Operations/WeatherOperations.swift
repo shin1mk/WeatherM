@@ -15,7 +15,6 @@ final class WeatherOperations {
     func fetchWeather(for city: String, countryCode: String, completion: @escaping (Int, String) -> Void) {
         let apiKey = "57f0aada42de195465afd5586ed94a91"
         let urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(city),\(countryCode)&appid=\(apiKey)"
-        print("URL: \(urlString)")
 
         if let url = URL(string: urlString) {
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
@@ -54,3 +53,17 @@ final class WeatherOperations {
         }
     }
 }
+
+
+
+
+/*
+ Dnepr  48,4647
+        35,0462
+ 
+ 
+ 
+ 
+ 
+*/
+

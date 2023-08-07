@@ -10,12 +10,14 @@ import SnapKit
 
 final class StoneView: UIView {
     //MARK: Properties
-    private var stoneImageView: UIImageView = {
-        let stoneImage = UIImage(named: "image_stone_normal")
-        let imageView = UIImageView(image: stoneImage)
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
+//    private var stoneImageView: UIImageView = {
+//        let stoneImage = UIImage(named: "image_stone_wet")
+//        let imageView = UIImageView(image: stoneImage)
+//        imageView.contentMode = .scaleAspectFit
+//        return imageView
+//    }()
+    private var stoneImageView = UIImageView()
+
     //MARK: Init
     init() {
         super.init(frame: .zero)
@@ -32,5 +34,9 @@ final class StoneView: UIView {
             make.centerX.equalToSuperview()
             make.top.equalToSuperview()
         }
+    }
+    
+    func setStoneImage(_ image: UIImage?) {
+        stoneImageView.image = image
     }
 }
