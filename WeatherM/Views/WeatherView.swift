@@ -20,7 +20,7 @@ final class WeatherView: UIView {
     }()
     private let conditionLabel: UILabel = {
         let conditionLabel = UILabel()
-        conditionLabel.text = "condition"
+        conditionLabel.text = "-"
         conditionLabel.font = UIFont.ubuntuLight(ofSize: 36)
         conditionLabel.textColor = .black
         conditionLabel.textAlignment = .left

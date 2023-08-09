@@ -8,14 +8,7 @@
 import UIKit
 import SnapKit
 
-final class InfoButton: UIView {
-    //MARK: Properties
-    private let infoButton: UIButton = {
-        let button = UIButton()
-        button.setBackgroundImage(UIImage(named: "infoButton"), for: .normal)
-        button.accessibilityIdentifier = "infoButton"
-        return button
-    }()
+final class InfoButton: UIButton {
     //MARK: Init
     init() {
         super.init(frame: .zero)
@@ -27,15 +20,7 @@ final class InfoButton: UIView {
     }
     //MARK: Methods
     private func setupConstraints() {
-        addSubview(infoButton)
-        infoButton.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.horizontalEdges.equalToSuperview()
-            make.height.equalTo(85)
-        }
-    }
-    
-    func getInfoButton() -> UIButton {
-        return infoButton
+        self.setBackgroundImage(UIImage(named: "infoButton"), for: .normal)
+        self.accessibilityIdentifier = "infoButton"
     }
 }

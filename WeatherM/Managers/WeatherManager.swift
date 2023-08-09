@@ -1,5 +1,5 @@
 //
-//  WeatherOperations.swift
+//  WeatherManager.swift
 //  WeatherM
 //
 //  Created by SHIN MIKHAIL on 04.08.2023.
@@ -9,12 +9,12 @@
 
 import Foundation
 
-final class WeatherOperations {
+final class WeatherManager {
     private let queue = DispatchQueue(label: "WeatherManager_working_queue", qos: .userInitiated)
     
-    func fetchWeather(for city: String, countryCode: String, completion: @escaping (Int, String) -> Void) {
+    func fetchWeather(for latitude: Double, longitude: Double, completion: @escaping (Int, String) -> Void) {
         let apiKey = "57f0aada42de195465afd5586ed94a91"
-        let urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(city),\(countryCode)&appid=\(apiKey)"
+        let urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)"
 
         if let url = URL(string: urlString) {
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
@@ -32,8 +32,8 @@ final class WeatherOperations {
                                 let roundedTemperature = Int(temperatureCelsius.rounded())
                                 
                                 if let weatherArray = json["weather"] as? [[String: Any]], let weatherDescription = weatherArray.first?["description"] as? String {
-                                    print("Температура \(city): \(roundedTemperature)°C")
-                                    print("Состояние погоды в \(city): \(weatherDescription)")
+                                    print("Температура: \(roundedTemperature)°C")
+                                    print("Состояние погоды: \(weatherDescription)")
                                     completion(roundedTemperature, weatherDescription)
                                 } else {
                                     print("Ошибка при получении данных о погоде.")

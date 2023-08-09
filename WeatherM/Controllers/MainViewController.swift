@@ -9,23 +9,22 @@ import UIKit
 import SnapKit
 import CoreLocation
 
-final class MainViewController: UIViewController, UISearchBarDelegate {
-    //MARK: - import view's
+final class MainViewController: UIViewController, UISearchBarDelegate, CLLocationManagerDelegate, UIGestureRecognizerDelegate {
+    //MARK: - Import view's
     private let stoneView = StoneView()
     private let weatherView = WeatherView()
-    private let weatherOperations = WeatherOperations()
+    private let weatherManager = WeatherManager()
     private let locationView = LocationView()
+    private let locationManager = CLLocationManager()
     private let infoButton = InfoButton()
     private let infoView = InfoView()
-    //MARK: Location
-    private let locationManager = CLLocationManager()
-    //MARK: backgroundImage
+    
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
         return backgroundImage
     }()
-    //MARK: - Scroll View
+    //MARK: Scroll-Content
     private let scrollView: UIScrollView = {
         var view = UIScrollView()
         view.isScrollEnabled = true
@@ -41,8 +40,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         searchBar.backgroundImage = UIImage()
         return searchBar
     }()
-    //MARK: state
-    private var currentBackgroundState: State = .normal {
+    //MARK: State
+    private var currentStoneState: State = .normal {
         didSet {
             updateBackgroundImage()
         }
@@ -123,95 +122,49 @@ final class MainViewController: UIViewController, UISearchBarDelegate {
         }
     }
     //MARK: Methods
+    // скрываем при загрузке SearchBar и InfoView
     private func hideComponents() {
         searchBar.isHidden = true
         infoView.isHidden = true
     }
-} // end MainViewController
-//MARK: - геолокация
-extension MainViewController: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        switch status {
-        case .authorizedWhenInUse, .authorizedAlways:
-            // Гео разрешена
-            break
-        case .denied, .restricted:
-            // Гео отклонена
-            break
-        default:
-            break
-        }
+    //MARK: Gesture
+    private func setupTapGestureRecognizer() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tapGesture.delegate = self
+        view.addGestureRecognizer(tapGesture)
     }
-    //результат геолокации
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        // Выводим в консоль широту и долготу
-        print("Latitude: \(location.coordinate.latitude), Longitude: \(location.coordinate.longitude)")
-        let geocoder = CLGeocoder()
-        // Геокодирование
-        geocoder.reverseGeocodeLocation(location) { [weak self] (placemarks, error) in
-            if let error = error {
-                print("Error \(error.localizedDescription)")
-                return
-            }
-            if let placemark = placemarks?.first {
-                // Получаем название города и страны
-                if let city = placemark.locality, let country = placemark.country {
-                    print("City: \(city), Country: \(country)")
-                    // Объединяем город и страну
-                    let locationString = "\(city), \(country)"
-                    // Выводим в locationLabel
-                    self?.locationView.setLocationLabelText(locationString)
-                    // Вызываем функцию fetchWeather с данными о городе и стране
-                    WeatherOperations().fetchWeather(for: city, countryCode: placemark.isoCountryCode ?? "") { temperature, weatherDescription in
-                        DispatchQueue.main.async {
-                            self?.weatherView.setTemperature(temperature: "\(temperature)°")
-                            self?.weatherView.setCondition(condition: weatherDescription)
-                            
-                            var newState: State
-                            switch weatherDescription {
-                            case let description where description.contains("snow"):
-                                newState = .snow
-                            case let description where description.contains("rain") || description.contains("shower"):
-                                newState = .wet
-                            case let description where description.contains("cloud") || description.contains("overcast"):
-                                newState = .cracks
-                            default:
-                                newState = .normal
-                            }
-                            // update background
-                            self?.changeBackgroundState(to: newState)
-                        }
-                    }
-                }
-            }
-        }
+    //MARK: Keyboard
+    @objc private func handleTap() {
+        // Скрываем клавиатуру
+        searchBar.resignFirstResponder()
+        // Скрываем UISearchBar
+        isSearchBarVisible = false
+        searchBar.isHidden = true
     }
-}
-//MARK: - targets/delegates/actions
-extension MainViewController {
-    //MARK: Search Bar Delegate Setup
+    //MARK: Search Bar Delegate
     private func setupSearchBarDelegate() {
         searchBar.delegate = self
         locationManager.delegate = self
     }
-    // target
+    //MARK: Targers
     private func setupTargets() {
         locationView.getLocationIconButton().addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
         locationView.getSearchIconButton().addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
-        infoButton.getInfoButton().addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+        infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
     }
-    //MARK: location button tap action
+    //MARK: Request geo/start geo
     private func setupLocationManager() {
         locationManager.requestWhenInUseAuthorization()
-    }
-    //MARK: метод для вызова разрешение для гео
-    @objc private func locationButtonTapped() {
         locationManager.startUpdatingLocation()
     }
-    //MARK: Search button Tap Action
+    //MARK: Location button action
+    @objc private func locationButtonTapped() {
+        print("location icon tapped")
+        locationManager.startUpdatingLocation()
+    }
+    //MARK: Search button action
     @objc private func searchIconTapped() {
-        print("searchIcon tapped")
+        print("search icon tapped")
         isSearchBarVisible.toggle()
         searchBar.isHidden = !isSearchBarVisible
         // Show the keyboard
@@ -221,28 +174,29 @@ extension MainViewController {
             searchBar.resignFirstResponder()
         }
     }
-    //MARK: Info Button Action
+    //MARK: Info button action
     @objc private func infoButtonTapped() {
-        print("info_button")
+        print("info button tapped")
         infoView.isHidden = !infoView.isHidden
     }
-}
-//MARK: - gesture recognizer
-extension MainViewController: UIGestureRecognizerDelegate {
-    private func setupTapGestureRecognizer() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        tapGesture.delegate = self
-        view.addGestureRecognizer(tapGesture)
-    }
-    //MARK: - keyboard
-    @objc private func handleTap() {
-        // Скрываем клавиатуру
-        searchBar.resignFirstResponder()
-        // Скрываем UISearchBar
-        isSearchBarVisible = false
-        searchBar.isHidden = true
-    }
-}
+    //MARK: Location
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        // Получаем координаты широты и долготы
+        let latitude = location.coordinate.latitude
+        let longitude = location.coordinate.longitude
+        // Выводим в locationLabel
+        let locationString = "Lat:\(latitude), Lon:\(longitude)"
+        self.locationView.setLocationLabelText(locationString)
+        // Вызываем функцию fetchWeather с полученными координатами
+        WeatherManager().fetchWeather(for: latitude, longitude: longitude) { temperature, weatherDescription in
+            DispatchQueue.main.async {
+                self.weatherView.setTemperature(temperature: "\(temperature)°")
+                self.weatherView.setCondition(condition: weatherDescription)
+            }
+        }
+    } // location
+} // end MainViewController
 // MARK: - State Extension
 extension MainViewController {
     enum State: Int {
@@ -253,7 +207,7 @@ extension MainViewController {
     }
 
     private func updateBackgroundImage() {
-        switch currentBackgroundState {
+        switch currentStoneState {
         case .normal:
             self.stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
         case .cracks:
@@ -265,7 +219,4 @@ extension MainViewController {
         }
     }
 
-    private func changeBackgroundState(to state: State) {
-        currentBackgroundState = state
-    }
 }
