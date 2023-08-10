@@ -20,7 +20,7 @@
  stavern norway rain
  58,99964
  10,04645
-*/
+ */
 import UIKit
 import SnapKit
 import CoreLocation
@@ -57,11 +57,11 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         return searchBar
     }()
     //MARK: State
-//    private var currentStoneState: State = .normal {
-//        didSet {
-//            updateBackgroundImage()
-//        }
-//    }
+    //    private var currentStoneState: State = .normal {
+    //        didSet {
+    //            updateBackgroundImage()
+    //        }
+    //    }
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -133,6 +133,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         infoView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview()
+            //            make.centerY.equalToSuperview().offset(view.frame.height) // Move it below the screen
+            
             make.width.equalTo(277)
             make.height.equalTo(372)
         }
@@ -157,7 +159,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         isSearchBarVisible = false
         searchBar.isHidden = true
     }
-
+    
     //MARK: Search Bar Delegate
     private func setupSearchBarDelegate() {
         searchBar.delegate = self
@@ -194,12 +196,33 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     //MARK: Info button action
     @objc private func infoButtonTapped() {
         print("info button tapped")
-        infoView.isHidden = !infoView.isHidden
+        infoViewAnimation()
+        //        infoView.isHidden = !infoView.isHidden
+    }
+    //MARK: animate Info View
+    private func infoViewAnimation() {
+        if infoView.isHidden {
+            // Show the infoView
+            infoView.isHidden = false
+            infoView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: []) {
+                self.infoView.transform = .identity
+            } completion: { _ in
+            }
+        } else {
+            UIView.animate(withDuration: 0.1, animations: {
+                self.infoView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+            }) { _ in
+                self.infoView.isHidden = true
+                self.infoView.transform = .identity
+            }
+        }
     }
     //MARK: Location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-
+        
         let latitude = location.coordinate.latitude
         let longitude = location.coordinate.longitude
         
@@ -208,7 +231,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             let temperatureKelvin = complitionData.temperature
             let temperatureCelsiusValue = Double(temperatureKelvin) - 273.15
             let temperatureCelsius = Int(ceil(temperatureCelsiusValue))
-
+            
             let city = complitionData.city
             let country = complitionData.country
             let windSpeedData = complitionData.windSpeed
@@ -217,8 +240,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
                 self.weatherView.conditionLabel.text = weatherConditions
                 self.locationView.locationLabel.text = city + ", " + country
-//                self.updateData(complitionData, isConnected: self.isConnected)
-//                self.windSpeed = windSpeedData
+                //                self.updateData(complitionData, isConnected: self.isConnected)
+                //                self.windSpeed = windSpeedData
                 
                 print("condition code  - \(conditionsCode)")
                 print("windspeed  - \(windSpeedData)")
