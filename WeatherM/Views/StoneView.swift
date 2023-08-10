@@ -9,15 +9,7 @@ import UIKit
 import SnapKit
 
 final class StoneView: UIView {
-    //MARK: Properties
-//    private var stoneImageView: UIImageView = {
-//        let stoneImage = UIImage(named: "image_stone_wet")
-//        let imageView = UIImageView(image: stoneImage)
-//        imageView.contentMode = .scaleAspectFit
-//        return imageView
-//    }()
     private var stoneImageView = UIImageView()
-
     //MARK: Init
     init() {
         super.init(frame: .zero)

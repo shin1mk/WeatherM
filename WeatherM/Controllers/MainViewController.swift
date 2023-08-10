@@ -6,18 +6,12 @@
 //
 
 /* todo
- изменить метод локации после запроса сразу выдавал результат +
- создать файл weather data +
- создать метод weather manager что бы получать из него название города ветер температуру состоние +
- создать экран инфо вью
  создать стейт что бы менялся камень
  создать анимации что бы качался камень
+ создать анимацию для infoView
  создать метод обновления данных когда тянешь вниз
  создать экран с таблицой для поиска городов найти какой то апи
  
- 
- 
-
  https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
  Dnepr
  48,4647
@@ -26,8 +20,6 @@
  stavern norway rain
  58,99964
  10,04645
- 
-
 */
 import UIKit
 import SnapKit
@@ -165,6 +157,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         isSearchBarVisible = false
         searchBar.isHidden = true
     }
+
     //MARK: Search Bar Delegate
     private func setupSearchBarDelegate() {
         searchBar.delegate = self
@@ -203,32 +196,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         print("info button tapped")
         infoView.isHidden = !infoView.isHidden
     }
-    /*//MARK: Location
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        // Получаем координаты широты и долготы
-        let latitude = location.coordinate.latitude
-        let longitude = location.coordinate.longitude
-
-        WeatherManager().updateWeather(for: latitude, longitude: longitude) { weatherData in
-            DispatchQueue.main.async {
-                let weatherConditions = weatherData.weather
-                let temperatureKelvin = weatherData.temperature
-                let temperatureCelsius = Int(Double(temperatureKelvin) - 273.15) // конвертируем в цельсии
-                let city = weatherData.city
-                let country = weatherData.country
-                let locationString = "Lat:\(latitude), Lon:\(longitude)"
-                self.locationView.setLocationLabelText(locationString)
-
-                self.weatherView.setTemperature(temperature: "\(temperatureCelsius)°")
-                self.weatherView.setCondition(condition: weatherConditions)
-
-                self.locationView.locationLabel.text = city + ", " + country
-            }
-        }
-    }
-    */
-    
+    //MARK: Location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
 
@@ -258,6 +226,4 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             }
         }
     }
-    
-  
 } // end MainViewController

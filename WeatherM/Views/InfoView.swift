@@ -8,55 +8,24 @@
 import UIKit
 import SnapKit
 
-/*
- final class InfoView: UIView {
- //MARK: Properties
- private let backgroundInfoView: UIImageView = {
- let backgroundImage = UIImageView(image: UIImage(named: "info"))
- backgroundImage.contentMode = .scaleAspectFit
- return backgroundImage
- }()
- private let hideButton: UIButton = {
- let button = UIButton()
- button.setTitle("", for: .normal)
- button.setTitleColor(.black, for: .normal)
- return button
- }()
- //MARK: Init
- init() {
- super.init(frame: .zero)
- setupConstraints()
- setupTarget()
- }
- 
- required init?(coder aDecoder: NSCoder) {
- return nil
- }
- //MARK: Methods
- private func setupConstraints() {
- addSubview(backgroundInfoView)
- backgroundInfoView.snp.makeConstraints { make in
- make.centerX.equalToSuperview()
- }
- addSubview(hideButton)
- hideButton.snp.makeConstraints { make in
- make.centerX.equalToSuperview()
- make.bottom.equalTo(backgroundInfoView.snp.bottom).offset(-30)
- make.width.equalTo(115)
- }
- }
- 
- private func setupTarget() {
- hideButton.addTarget(self, action: #selector(hideButtonTapped), for: .touchUpInside)
- }
- 
- @objc private func hideButtonTapped() {
- isHidden = true
- }
- }
- */
-
 final class InfoView: UIView {
+    private let backgroundInfoView: UIImageView = {
+        let backgroundView = UIImageView()
+        backgroundView.backgroundColor = UIColor(red: 251/255, green: 95/255, blue: 41/255, alpha: 1)
+        backgroundView.layer.cornerRadius = 15
+        backgroundView.layer.shadowColor = UIColor.black.cgColor
+        backgroundView.layer.shadowOpacity = 0.5
+        backgroundView.layer.shadowOffset = CGSize(width: 0, height: 4)
+        backgroundView.layer.shadowRadius = 4
+        backgroundView.layer.masksToBounds = false
+        return backgroundView
+    }()
+    private let mainInfoView: UIImageView = {
+        let mainInfoView = UIImageView()
+        mainInfoView.backgroundColor = UIColor(red: 1.0, green: 153/255, blue: 96/255, alpha: 1.0)
+        mainInfoView.layer.cornerRadius = 15
+        return mainInfoView
+    }()
     private let infoTitle: UILabel = {
         let infoLabel = UILabel()
         infoLabel.text = "INFO"
@@ -80,15 +49,13 @@ final class InfoView: UIView {
         button.setTitleColor(UIColor(red: 45/255, green: 45/255, blue: 45/255, alpha: 1), for: .normal)
         button.layer.borderWidth = 1.0
         button.layer.borderColor = UIColor(red: 45/255, green: 45/255, blue: 45/255, alpha: 1).cgColor
-        button.layer.cornerRadius = 15 // Выберите желаемый радиус
-        button.titleLabel?.font = UIFont.ubuntuRegular(ofSize: 15) // Установка шрифта размером 15
-
+        button.layer.cornerRadius = 15
+        button.titleLabel?.font = UIFont.ubuntuRegular(ofSize: 15)
         return button
     }()
     //MARK: Init
     init() {
         super.init(frame: .zero)
-        setupBackground()
         setupConstraints()
         setupTarget()
     }
@@ -97,12 +64,17 @@ final class InfoView: UIView {
         return nil
     }
     //MARK: Methods
-    private func setupBackground() {
-        backgroundColor = UIColor(red: 1.0, green: 153/255, blue: 96/255, alpha: 1.0)
-        layer.cornerRadius = 15
-    }
-    
     private func setupConstraints() {
+        addSubview(backgroundInfoView)
+        backgroundInfoView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        addSubview(mainInfoView)
+        mainInfoView.snp.makeConstraints { make in
+            make.top.bottom.equalTo(backgroundInfoView)
+            make.trailing.equalTo(backgroundInfoView.snp.trailing).offset(-7)
+            make.leading.equalTo(backgroundInfoView.snp.leading)
+        }
         addSubview(infoTitle)
         infoTitle.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -130,3 +102,4 @@ final class InfoView: UIView {
         isHidden = true
     }
 }
+
