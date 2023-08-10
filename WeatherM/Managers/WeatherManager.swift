@@ -39,14 +39,4 @@ final class WeatherManager {
     }
 }
 
-/*
- https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
- Dnepr
- 48,4647
- 35,0462
- 
- stavern norway rain
- 58,99964
- 10,04645
- */
 

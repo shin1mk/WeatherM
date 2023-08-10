@@ -10,7 +10,7 @@ import SnapKit
 
 final class LocationView: UIView {
     //MARK: Properties
-     let locationLabel: UILabel = {
+    let locationLabel: UILabel = {
         let locationLabel = UILabel()
         locationLabel.text = "Location"
         locationLabel.font = UIFont.ubuntuMedium(ofSize: 17)

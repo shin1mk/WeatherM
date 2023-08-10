@@ -13,7 +13,21 @@
  создать стейт что бы менялся камень
  создать анимации что бы качался камень
  создать метод обновления данных когда тянешь вниз
- создать экран с таблицой для поиска городов найти какой то апи 
+ создать экран с таблицой для поиска городов найти какой то апи
+ 
+ 
+ 
+
+ https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
+ Dnepr
+ 48,4647
+ 35,0462
+ 
+ stavern norway rain
+ 58,99964
+ 10,04645
+ 
+
 */
 import UIKit
 import SnapKit
@@ -127,8 +141,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         infoView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview()
-            make.width.equalTo(350)
-            make.height.equalTo(450)
+            make.width.equalTo(277)
+            make.height.equalTo(372)
         }
     }
     //MARK: Methods
