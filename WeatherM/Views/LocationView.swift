@@ -10,7 +10,7 @@ import SnapKit
 
 final class LocationView: UIView {
     //MARK: Properties
-    private let locationLabel: UILabel = {
+     let locationLabel: UILabel = {
         let locationLabel = UILabel()
         locationLabel.text = "Location"
         locationLabel.font = UIFont.ubuntuMedium(ofSize: 17)
@@ -51,14 +51,14 @@ final class LocationView: UIView {
         addSubview(locationIconButton)
         locationIconButton.snp.makeConstraints { make in
             make.bottom.equalTo(snp.bottom).inset(10)
-            make.leading.equalToSuperview().inset(70)
+            make.leading.equalToSuperview().inset(50)
             make.height.equalTo(16)
         }
         // searchIconButton
         addSubview(searchIconButton)
         searchIconButton.snp.makeConstraints{ make in
             make.bottom.equalTo(snp.bottom).inset(10)
-            make.trailing.equalToSuperview().inset(70)
+            make.trailing.equalToSuperview().inset(60)
             make.height.equalTo(16)
         }
     }

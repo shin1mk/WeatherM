@@ -5,6 +5,16 @@
 //  Created by SHIN MIKHAIL on 30.07.2023.
 //
 
+/* todo
+ изменить метод локации после запроса сразу выдавал результат +
+ создать файл weather data +
+ создать метод weather manager что бы получать из него название города ветер температуру состоние +
+ создать экран инфо вью
+ создать стейт что бы менялся камень
+ создать анимации что бы качался камень
+ создать метод обновления данных когда тянешь вниз
+ создать экран с таблицой для поиска городов найти какой то апи 
+*/
 import UIKit
 import SnapKit
 import CoreLocation
@@ -41,11 +51,11 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         return searchBar
     }()
     //MARK: State
-    private var currentStoneState: State = .normal {
-        didSet {
-            updateBackgroundImage()
-        }
-    }
+//    private var currentStoneState: State = .normal {
+//        didSet {
+//            updateBackgroundImage()
+//        }
+//    }
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,7 +118,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         view.addSubview(infoButton)
         infoButton.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.horizontalEdges.equalToSuperview().inset(65)
+            make.horizontalEdges.equalToSuperview().inset(70)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(40)
             make.height.equalTo(85)
         }
@@ -179,44 +189,61 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         print("info button tapped")
         infoView.isHidden = !infoView.isHidden
     }
-    //MARK: Location
+    /*//MARK: Location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         // Получаем координаты широты и долготы
         let latitude = location.coordinate.latitude
         let longitude = location.coordinate.longitude
-        // Выводим в locationLabel
-        let locationString = "Lat:\(latitude), Lon:\(longitude)"
-        self.locationView.setLocationLabelText(locationString)
-        // Вызываем функцию fetchWeather с полученными координатами
-        WeatherManager().fetchWeather(for: latitude, longitude: longitude) { temperature, weatherDescription in
+
+        WeatherManager().updateWeather(for: latitude, longitude: longitude) { weatherData in
             DispatchQueue.main.async {
-                self.weatherView.setTemperature(temperature: "\(temperature)°")
-                self.weatherView.setCondition(condition: weatherDescription)
+                let weatherConditions = weatherData.weather
+                let temperatureKelvin = weatherData.temperature
+                let temperatureCelsius = Int(Double(temperatureKelvin) - 273.15) // конвертируем в цельсии
+                let city = weatherData.city
+                let country = weatherData.country
+                let locationString = "Lat:\(latitude), Lon:\(longitude)"
+                self.locationView.setLocationLabelText(locationString)
+
+                self.weatherView.setTemperature(temperature: "\(temperatureCelsius)°")
+                self.weatherView.setCondition(condition: weatherConditions)
+
+                self.locationView.locationLabel.text = city + ", " + country
             }
         }
-    } // location
-} // end MainViewController
-// MARK: - State Extension
-extension MainViewController {
-    enum State: Int {
-        case normal
-        case cracks
-        case snow
-        case wet
     }
+    */
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
 
-    private func updateBackgroundImage() {
-        switch currentStoneState {
-        case .normal:
-            self.stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
-        case .cracks:
-            self.stoneView.setStoneImage(UIImage(named: "image_stone_cracks.png"))
-        case .snow:
-            self.stoneView.setStoneImage(UIImage(named: "image_stone_snow.png"))
-        case .wet:
-            self.stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
+        let latitude = location.coordinate.latitude
+        let longitude = location.coordinate.longitude
+        
+        weatherManager.updateWeather(for: latitude, longitude: longitude) { complitionData in
+            let weatherConditions = complitionData.weather
+            let temperatureKelvin = complitionData.temperature
+            let temperatureCelsiusValue = Double(temperatureKelvin) - 273.15
+            let temperatureCelsius = Int(ceil(temperatureCelsiusValue))
+
+            let city = complitionData.city
+            let country = complitionData.country
+            let windSpeedData = complitionData.windSpeed
+            let conditionsCode = complitionData.cod
+            DispatchQueue.main.async { [self] in
+                self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
+                self.weatherView.conditionLabel.text = weatherConditions
+                self.locationView.locationLabel.text = city + ", " + country
+//                self.updateData(complitionData, isConnected: self.isConnected)
+//                self.windSpeed = windSpeedData
+                
+                print("condition code  - \(conditionsCode)")
+                print("windspeed  - \(windSpeedData)")
+                print(temperatureCelsius)
+            }
         }
     }
-
-}
+    
+  
+} // end MainViewController
