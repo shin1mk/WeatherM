@@ -7,7 +7,6 @@
 
 /* todo
  создать анимации что бы качался камень
- сделать     private var isConnected: Bool = true
  создать метод обновления данных когда тянешь вниз
  создать экран с таблицой для поиска городов найти какой то апи
  
@@ -23,7 +22,7 @@
 import UIKit
 import SnapKit
 import CoreLocation
-//import Network
+import Network
 
 final class MainViewController: UIViewController, UISearchBarDelegate, CLLocationManagerDelegate, UIGestureRecognizerDelegate {
     //MARK: - Import view's
@@ -36,7 +35,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     private let infoView = InfoView()
     
     private var windSpeed: Double = 0.0
-    private var isConnected: Bool = true
+//    private var isConnected: Bool = true
+    private var isConnected = true
 
     
     private let backgroundImageView: UIImageView = {
@@ -71,6 +71,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         setupSearchBarDelegate()
         setupTapGestureRecognizer()
         hideComponents()
+        startNetworkMonitoring()
+
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -158,6 +160,24 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         // Скрываем UISearchBar
         isSearchBarVisible = false
         searchBar.isHidden = true
+    }
+    //MARK: - Network Monitoring
+    private func startNetworkMonitoring() {
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "NetworkMonitor")
+        
+        monitor.pathUpdateHandler = { [weak self] path in
+            if path.status == .satisfied {
+                self?.isConnected = true
+                print("inet +")
+            } else {
+                self?.isConnected = false
+                print("inet -")
+            }
+            self?.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
+        }
+        
+        monitor.start(queue: queue)
     }
     
     //MARK: Search Bar Delegate
@@ -255,7 +275,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     private var state: State = .normal(windy: false){
         didSet {
             print("State changed to: \(state)")
-            updateWeatherState(state, windSpeed)
+            updateWeatherState(state, windSpeed, isConnected)
+            
         }
     }
     
@@ -264,7 +285,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         state = .init(temperature: data.temperature, conditionCode: data.id, windSpeed: data.windSpeed)
     }
     
-    private func updateWeatherState(_ state: State, _ windSpeed: Double) {
+    private func updateWeatherState(_ state: State, _ windSpeed: Double, _ isConnected: Bool) {
         switch state {
         case .rain(windy: let isWindy):
             if isWindy {
@@ -310,7 +331,14 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
             }
         case .noInternet:
-            stoneView.isHidden = true
+            DispatchQueue.main.async { [self] in
+                if !isConnected {
+                    //                    stoneView.isHidden = true
+                    stoneView.setStoneImage(UIImage(named: "noInternet.png"))
+                    let newY = 100  // Смещение на 100 поинт
+                    stoneView.frame.origin.y = CGFloat(newY)
+                }
+            }
         }
     }
 } // end MainViewController
