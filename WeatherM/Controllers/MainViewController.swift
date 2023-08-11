@@ -8,7 +8,6 @@
 /* todo
  создать стейт что бы менялся камень
  создать анимации что бы качался камень
- создать анимацию для infoView
  создать метод обновления данных когда тянешь вниз
  создать экран с таблицой для поиска городов найти какой то апи
  
@@ -24,6 +23,8 @@
 import UIKit
 import SnapKit
 import CoreLocation
+import Network
+
 
 final class MainViewController: UIViewController, UISearchBarDelegate, CLLocationManagerDelegate, UIGestureRecognizerDelegate {
     //MARK: - Import view's
@@ -34,6 +35,10 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     private let locationManager = CLLocationManager()
     private let infoButton = InfoButton()
     private let infoView = InfoView()
+    
+    private var windSpeed: Double = 0.0
+    private var isConnected: Bool = true
+
     
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
@@ -57,11 +62,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         return searchBar
     }()
     //MARK: State
-    //    private var currentStoneState: State = .normal {
-    //        didSet {
-    //            updateBackgroundImage()
-    //        }
-    //    }
+
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -235,18 +236,144 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             let city = complitionData.city
             let country = complitionData.country
             let windSpeedData = complitionData.windSpeed
-            let conditionsCode = complitionData.cod
+            let conditionCode = complitionData.cod
             DispatchQueue.main.async { [self] in
                 self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
                 self.weatherView.conditionLabel.text = weatherConditions
                 self.locationView.locationLabel.text = city + ", " + country
-                //                self.updateData(complitionData, isConnected: self.isConnected)
-                //                self.windSpeed = windSpeedData
                 
-                print("condition code  - \(conditionsCode)")
+                self.updateData(complitionData, isConnected: self.isConnected)
+                self.windSpeed = windSpeedData
+                
+                print("condition code  - \(conditionCode)")
                 print("windspeed  - \(windSpeedData)")
-                print(temperatureCelsius)
+                print("t - \(temperatureCelsius)")
             }
         }
     }
+    
+    private var state: State = .normal(windy: false){
+        didSet {
+            print("State changed to: \(state)")
+            updateWeatherState(state, windSpeed)
+        }
+    }
+    
+    private func updateData(_ data: CompletionData, isConnected: Bool) {
+        print("updateData - temperature: \(data.temperature), conditionCode: \(data.id), windSpeed: \(data.windSpeed)")
+
+        state = .init(temperature: data.temperature, conditionCode: data.id, windSpeed: data.windSpeed)
+    }
+    
+    private func updateWeatherState(_ state: State, _ windSpeed: Double) {
+        switch state {
+        case .rain(windy: let isWindy):
+            if isWindy {
+                print("rain case Windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
+            } else {
+                print("rain case NOT windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
+            }
+        case .hot(windy: let isWindy):
+            if isWindy {
+                print("hot case Windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_cracks.png"))
+            } else {
+                print("hot case NOT windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_cracks.png"))
+            }
+        case .snow(windy: let isWindy):
+            if isWindy {
+                print("snow case Windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_snow.png"))
+            } else {
+                print("snow case NOT windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_snow.png"))
+            }
+        case .fog(windy: let isWindy):
+            if isWindy {
+                print("fog case Windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
+                stoneView.alpha = 0.2
+                
+            } else {
+                print("fog case NOT windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
+                stoneView.alpha = 0.2
+                
+            }
+        case .sunny(windy: let isWindy):
+            if isWindy {
+                print("sunny case Windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
+            } else {
+                print("sunny case NOT windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
+            }
+        case .normal(windy: let isWindy):
+            if isWindy {
+                print("normal case Windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
+            } else {
+                print("normal case NOT windy")
+                stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
+            }
+        case .noInternet:
+            stoneView.isHidden = true
+        }
+        
+    }
 } // end MainViewController
+//MARK: - extension MainViewController
+enum State: Equatable {
+    case rain(windy: Bool)
+    case sunny(windy: Bool)
+    case fog(windy: Bool)
+    case hot(windy: Bool)
+    case snow(windy: Bool)
+    case normal(windy: Bool)
+    case noInternet
+    
+    var isWindy: Bool {
+        switch self {
+        case .noInternet:
+            print("No internet")
+            return false
+        case .snow(let windy):
+            return windy
+        case .hot(let windy):
+            return windy
+        case .rain(let windy):
+            return windy
+        case .sunny(let windy):
+            return windy
+        case .fog(let windy):
+            return windy
+        case .normal(let windy):
+            return windy
+        }
+    }
+
+    init(temperature: Int, conditionCode: Int, windSpeed: Double) {
+        print("init - temperature: \(temperature), conditionCode: \(conditionCode), windSpeed: \(windSpeed)")
+
+        if temperature > 30 {
+            self = .hot(windy: windSpeed > 3)
+        } else if temperature < 30 && conditionCode >= 100 && conditionCode <= 531 {
+            self = .rain(windy: windSpeed > 3)
+        } else if temperature < 30 && conditionCode >= 600 && conditionCode <= 622 {
+            self = .snow(windy: windSpeed > 3)
+        } else if temperature < 30 && conditionCode >= 701 && conditionCode <= 781 {
+            self = .fog(windy: windSpeed > 3)
+        } else if temperature < 30 && conditionCode >= 800 && conditionCode <= 804 {
+            self = .normal(windy: windSpeed > 3)
+        } else {
+            self = .normal(windy: false)
+        }
+    }
+}
+
+
+
+
