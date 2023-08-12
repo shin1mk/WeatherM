@@ -24,7 +24,7 @@ final class StoneView: UIView {
         addSubview(stoneImageView)
         stoneImageView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(-200)
         }
     }
     

@@ -35,9 +35,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     private let infoView = InfoView()
     
     private var windSpeed: Double = 0.0
-    //    private var isConnected: Bool = true
     private var isConnected = true
-    
     
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
@@ -77,6 +75,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         setupTapGestureRecognizer()
         hideComponents()
         startNetworkMonitoring()
+        animateStoneAppearance()
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -102,7 +101,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         stoneView.snp.makeConstraints { make in
             make.centerX.equalTo(contentView)
             make.trailing.leading.equalTo(contentView)
-            make.top.equalTo(contentView).offset(-100)
+            make.top.equalTo(contentView.snp.top).offset(stoneView.frame.height)
         }
         // searchBar
         contentView.addSubview(searchBar)
@@ -139,8 +138,6 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         infoView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview()
-            //            make.centerY.equalToSuperview().offset(view.frame.height) // Move it below the screen
-            
             make.width.equalTo(277)
             make.height.equalTo(372)
         }
@@ -197,6 +194,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     private func setupLocationManager() {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
+        
     }
     //MARK: Location button action
     @objc private func locationButtonTapped() {
@@ -221,7 +219,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         infoViewAnimation()
         //        infoView.isHidden = !infoView.isHidden
     }
-    //MARK: animate Info View
+    //MARK: animation Info View
     private func infoViewAnimation() {
         if infoView.isHidden {
             // Show the infoView
@@ -271,6 +269,28 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             }
         }
     }
+    //MARK: stone animation
+    private func animateStoneAppearance() {
+        stoneView.frame.origin.y = stoneView.frame.height
+        let finalPosition = stoneView.frame.origin.y + 100
+        let numberOfRebounds = 5
+        var currentRebound = 0
+        func animateWithRebound() {
+            UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 0.3, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+                if currentRebound < numberOfRebounds {
+                    self.stoneView.frame.origin.y = finalPosition
+                } else {
+                    self.stoneView.frame.origin.y = finalPosition - 0
+                }
+            }, completion: { _ in
+                if currentRebound < numberOfRebounds {
+                    currentRebound += 1
+                    animateWithRebound()
+                }
+            })
+        }
+        animateWithRebound()
+    }
     //MARK: updateData
     private func updateData(_ data: CompletionData, isConnected: Bool) {
         print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
@@ -287,6 +307,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 print("rain = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
             }
+            animateStoneAppearance()
         case .hot(windy: let isWindy):
             if isWindy {
                 print("hot windy")
@@ -295,6 +316,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 print("hot = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_cracks.png"))
             }
+            animateStoneAppearance()
         case .snow(windy: let isWindy):
             if isWindy {
                 print("snow = windy")
@@ -303,17 +325,18 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 print("snow = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_snow.png"))
             }
+            animateStoneAppearance()
         case .fog(windy: let isWindy):
             if isWindy {
                 print("fog = windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
                 stoneView.alpha = 0.2
-                
             } else {
                 print("fog = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
                 stoneView.alpha = 0.2
             }
+            animateStoneAppearance()
         case .normal(windy: let isWindy):
             if isWindy {
                 print("normal = windy")
@@ -322,13 +345,13 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 print("normal = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
             }
+            animateStoneAppearance()
         case .noInternet:
             DispatchQueue.main.async { [self] in
                 if !isConnected {
-                    //                    stoneView.isHidden = true
                     stoneView.setStoneImage(UIImage(named: "noInternet.png"))
-                    let newY = 100  // Смещение на 100 поинт
-                    stoneView.frame.origin.y = CGFloat(newY)
+                    stoneView.frame.origin.y = CGFloat(100)
+                    animateStoneAppearance()
                 }
             }
         }
