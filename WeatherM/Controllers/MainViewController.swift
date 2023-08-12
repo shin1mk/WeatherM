@@ -7,7 +7,6 @@
 
 /* todo
  создать анимации что бы качался камень
- создать метод обновления данных когда тянешь вниз
  создать экран с таблицой для поиска городов найти какой то апи
  
  https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
@@ -25,23 +24,23 @@ import CoreLocation
 import Network
 
 final class MainViewController: UIViewController, UISearchBarDelegate, CLLocationManagerDelegate, UIGestureRecognizerDelegate {
-    //MARK: - Import view's
-    private let stoneView = StoneView()
-    private let weatherView = WeatherView()
-    private let weatherManager = WeatherManager()
-    private let locationView = LocationView()
-    private let locationManager = CLLocationManager()
-    private let infoButton = InfoButton()
-    private let infoView = InfoView()
-    
-    private var windSpeed: Double = 0.0
-    private var isConnected = true
-    
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
         return backgroundImage
     }()
+    //MARK: - Import view's
+    private let stoneView = StoneView()
+    private let weatherView = WeatherView()
+    private let weatherManager = WeatherManager()
+    private let locationView = LocationView()
+    private let infoButton = InfoButton()
+    private let infoView = InfoView()
+    
+    private let locationManager = CLLocationManager()
+    private let refreshControl = UIRefreshControl()
+    private var windSpeed: Double = 0.0
+    private var isConnected = true
     //MARK: Scroll-Content
     private let scrollView: UIScrollView = {
         var view = UIScrollView()
@@ -85,6 +84,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             make.edges.equalToSuperview()
         }
         // scroll view
+        scrollView.refreshControl = refreshControl
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -188,13 +188,13 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     private func setupTargets() {
         locationView.getLocationIconButton().addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
         locationView.getSearchIconButton().addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
+        refreshControl.addTarget(self, action: #selector(refreshWeather), for: .valueChanged)
         infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
     }
     //MARK: Request geo/start geo
     private func setupLocationManager() {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
-        
     }
     //MARK: Location button action
     @objc private func locationButtonTapped() {
@@ -217,7 +217,6 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     @objc private func infoButtonTapped() {
         print("info button tapped")
         infoViewAnimation()
-        //        infoView.isHidden = !infoView.isHidden
     }
     //MARK: animation Info View
     private func infoViewAnimation() {
@@ -256,7 +255,6 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             let country = complitionData.country
             let windSpeedData = complitionData.windSpeed
             let conditionCode = complitionData.cod
-            //            let conditionCode = complitionData.id
             DispatchQueue.main.async { [self] in
                 self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
                 self.weatherView.conditionLabel.text = weatherConditions
@@ -356,6 +354,21 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             }
         }
     }
+    
+    @objc private func refreshWeather() {
+        // Здесь вызовите методы для обновления данных о погоде
+        // Например, перезапустите локационный менеджер для получения новых данных о погоде
+
+        // По завершении обновления данных о погоде:
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            // Обновите состояние погоды на основе новых данных
+            self.updateWeatherState(self.state, self.windSpeed, self.isConnected)
+
+            // Завершите "pull-to-refresh"
+            self.refreshControl.endRefreshing()
+        }
+    }
+
 } // end MainViewController
 //MARK: - extension State
 extension MainViewController {
