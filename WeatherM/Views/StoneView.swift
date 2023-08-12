@@ -10,6 +10,7 @@ import SnapKit
 
 final class StoneView: UIView {
     private var stoneImageView = UIImageView()
+    private var activityIndicator = UIActivityIndicatorView(style: .large)
     //MARK: Init
     init() {
         super.init(frame: .zero)
@@ -35,19 +36,11 @@ final class StoneView: UIView {
 //MARK: Extension
 extension StoneView {
     func startLoadingAnimation() {
-        let activityIndicator = UIActivityIndicatorView(style: .large)
-        activityIndicator.center = CGPoint(x: bounds.midX, y: bounds.midY)
-        activityIndicator.color = UIColor.red
-        addSubview(activityIndicator)
         activityIndicator.startAnimating()
     }
 
     func stopLoadingAnimation() {
-        for subview in subviews {
-            if let activityIndicator = subview as? UIActivityIndicatorView {
-                activityIndicator.stopAnimating()
-                activityIndicator.removeFromSuperview()
-            }
-        }
+        activityIndicator.stopAnimating()
+        activityIndicator.removeFromSuperview()
     }
 }

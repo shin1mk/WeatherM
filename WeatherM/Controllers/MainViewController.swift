@@ -101,7 +101,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         stoneView.snp.makeConstraints { make in
             make.centerX.equalTo(contentView)
             make.trailing.leading.equalTo(contentView)
-            make.top.equalTo(contentView.snp.top).offset(stoneView.frame.height)
+            make.top.equalTo(contentView.snp.top).offset(-100)
         }
         // searchBar
         contentView.addSubview(searchBar)
@@ -133,7 +133,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(40)
             make.height.equalTo(85)
         }
-        // Info View
+        // info View
         view.addSubview(infoView)
         infoView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -143,7 +143,6 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         }
     }
     //MARK: Methods
-    // скрываем при загрузке SearchBar и InfoView
     private func hideComponents() {
         searchBar.isHidden = true
         infoView.isHidden = true
@@ -199,6 +198,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     //MARK: Location button action
     @objc private func locationButtonTapped() {
         print("location icon tapped")
+        refreshWeather()
         locationManager.startUpdatingLocation()
     }
     //MARK: Search button action
@@ -238,6 +238,28 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             }
         }
     }
+    //MARK: stone animation
+    private func animateStoneAppearance() {
+        stoneView.frame.origin.y = stoneView.frame.height
+        let finalPosition = stoneView.frame.origin.y + 100
+        let numberOfRebounds = 5
+        var currentRebound = 0
+        func animateWithRebound() {
+            UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 0.3, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+                if currentRebound < numberOfRebounds {
+                    self.stoneView.frame.origin.y = finalPosition
+                } else {
+                    self.stoneView.frame.origin.y = finalPosition - 0
+                }
+            }, completion: { _ in
+                if currentRebound < numberOfRebounds {
+                    currentRebound += 1
+                    animateWithRebound()
+                }
+            })
+        }
+        animateWithRebound()
+    }
     //MARK: Location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
@@ -267,28 +289,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             }
         }
     }
-    //MARK: stone animation
-    private func animateStoneAppearance() {
-        stoneView.frame.origin.y = stoneView.frame.height
-        let finalPosition = stoneView.frame.origin.y + 100
-        let numberOfRebounds = 5
-        var currentRebound = 0
-        func animateWithRebound() {
-            UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 0.3, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
-                if currentRebound < numberOfRebounds {
-                    self.stoneView.frame.origin.y = finalPosition
-                } else {
-                    self.stoneView.frame.origin.y = finalPosition - 0
-                }
-            }, completion: { _ in
-                if currentRebound < numberOfRebounds {
-                    currentRebound += 1
-                    animateWithRebound()
-                }
-            })
-        }
-        animateWithRebound()
-    }
+    
     //MARK: updateData
     private func updateData(_ data: CompletionData, isConnected: Bool) {
         print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
@@ -361,10 +362,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
 
         // По завершении обновления данных о погоде:
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            // Обновите состояние погоды на основе новых данных
             self.updateWeatherState(self.state, self.windSpeed, self.isConnected)
-
-            // Завершите "pull-to-refresh"
             self.refreshControl.endRefreshing()
         }
     }
