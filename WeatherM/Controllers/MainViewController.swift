@@ -6,9 +6,8 @@
 //
 
 /* todo
- создать анимации что бы качался камень
  создать экран с таблицой для поиска городов найти какой то апи
- 
+ починить обновление стейт интернет есть нет
  https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
  Dnepr
  48,4647
@@ -45,7 +44,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     private var windSpeed: Double = 0.0
     private var isConnected = true
     private var isAnimatingStone = false
-
+    
     //MARK: Scroll-Content
     private let scrollView: UIScrollView = {
         var view = UIScrollView()
@@ -171,14 +170,21 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         let queue = DispatchQueue(label: "NetworkMonitor")
         
         monitor.pathUpdateHandler = { [weak self] path in
-            if path.status == .satisfied {
-                self?.isConnected = true
-                print("internet +")
-            } else {
-                self?.isConnected = false
-                print("internet -")
+            DispatchQueue.main.async {
+                self?.isConnected = path.status == .satisfied
+                if self?.isConnected == true {
+                    print("Internet connection is available.")
+                    self?.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
+                    self?.isAnimatingStone = true
+                } else {
+                    print("No internet connection.")
+                    self?.weatherView.temperatureLabel.text = "--°"
+                    self?.weatherView.conditionLabel.text = "-"
+                    self?.locationView.locationLabel.text = "no internet"
+                    self?.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
+                    self?.isAnimatingStone = false
+                }
             }
-            self?.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
         }
         monitor.start(queue: queue)
     }
@@ -249,7 +255,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         let finalPosition = stoneView.frame.origin.y + 100
         let numberOfRebounds = 5
         var currentRebound = 0
-
+        
         func animateWithRebound() {
             UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 0.3, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
                 if currentRebound < numberOfRebounds {
@@ -272,40 +278,67 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     }
     //MARK: Rocking Animation
     private func animateRockingStone() {
-        let rockingDistance: CGFloat = -20.0
-        let rockingDuration: TimeInterval = 1.0
-
-        UIView.animate(withDuration: rockingDuration, delay: 0, options: [.curveEaseInOut, .autoreverse, .repeat], animations: {
-            self.stoneView.center.x -= rockingDistance
-        }, completion: nil)
+        if isAnimatingStone {
+            let rockingDistance: CGFloat = -20.0
+            let rockingDuration: TimeInterval = 1.0
+            
+            UIView.animate(withDuration: rockingDuration, delay: 0, options: [.curveEaseInOut, .autoreverse, .repeat], animations: {
+                self.stoneView.center.x -= rockingDistance
+            }, completion: nil)
+        }
     }
     //MARK: Location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
+        updateWeatherData(for: location)
         
-        let latitude = location.coordinate.latitude
-        let longitude = location.coordinate.longitude
-        
-        weatherManager.updateWeather(for: latitude, longitude: longitude) { complitionData in
+        //        let latitude = location.coordinate.latitude
+        //        let longitude = location.coordinate.longitude
+        //
+        //        weatherManager.updateWeather(for: latitude, longitude: longitude) { complitionData in
+        //            let weatherConditions = complitionData.weather
+        //            let temperatureKelvin = complitionData.temperature
+        //            let temperatureCelsiusValue = Double(temperatureKelvin) - 273.15
+        //            let temperatureCelsius = Int(ceil(temperatureCelsiusValue))
+        //
+        //            let city = complitionData.city
+        //            let country = complitionData.country
+        //            let windSpeedData = complitionData.windSpeed
+        //            let conditionCode = complitionData.cod
+        //            DispatchQueue.main.async { [self] in
+        //                self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
+        //                self.weatherView.conditionLabel.text = weatherConditions
+        //                self.locationView.locationLabel.text = city + ", " + country
+        //                self.updateData(complitionData, isConnected: self.isConnected)
+        //                self.windSpeed = windSpeedData
+        //                print("condition code  - \(conditionCode)")
+        //            }
+        //        }
+    }
+    private func updateWeatherData(for location: CLLocation) {
+        weatherManager.updateWeather(for: location.coordinate.latitude, longitude: location.coordinate.longitude) { [weak self] complitionData in
+            guard let self = self else { return } // Avoid potential retain cycles
+            
             let weatherConditions = complitionData.weather
             let temperatureKelvin = complitionData.temperature
             let temperatureCelsiusValue = Double(temperatureKelvin) - 273.15
             let temperatureCelsius = Int(ceil(temperatureCelsiusValue))
-            
             let city = complitionData.city
             let country = complitionData.country
             let windSpeedData = complitionData.windSpeed
             let conditionCode = complitionData.cod
-            DispatchQueue.main.async { [self] in
+            
+            DispatchQueue.main.async {
                 self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
                 self.weatherView.conditionLabel.text = weatherConditions
                 self.locationView.locationLabel.text = city + ", " + country
                 self.updateData(complitionData, isConnected: self.isConnected)
                 self.windSpeed = windSpeedData
-                print("condition code  - \(conditionCode)")
+                print("condition code - \(conditionCode)")
             }
         }
     }
+    
     //MARK: updateData
     private func updateData(_ data: CompletionData, isConnected: Bool) {
         print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
@@ -370,13 +403,54 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
             }
         }
     }
+    //MARK: RefreshWeather
+    //    @objc private func refreshWeather() {
+    //        startNetworkMonitoring()
+    //
+    //        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+    //            if self.isConnected {
+    //                self.updateWeatherState(self.state, self.windSpeed, self.isConnected)
+    //                guard let location = self.locationManager.location else { return }
+    //
+    //                let latitude = location.coordinate.latitude
+    //                let longitude = location.coordinate.longitude
+    //
+    //                self.weatherManager.updateWeather(for: latitude, longitude: longitude) { complitionData in
+    //                    // Тут обновите остальные данные, например:
+    //                    let weatherConditions = complitionData.weather
+    //                    let temperatureKelvin = complitionData.temperature
+    //                    let temperatureCelsiusValue = Double(temperatureKelvin) - 273.15
+    //                    let temperatureCelsius = Int(ceil(temperatureCelsiusValue))
+    //
+    //                    let city = complitionData.city
+    //                    let country = complitionData.country
+    //                    let windSpeedData = complitionData.windSpeed
+    //                    let conditionCode = complitionData.cod
+    //                    DispatchQueue.main.async {
+    //                        self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
+    //                        self.weatherView.conditionLabel.text = weatherConditions
+    //                        self.locationView.locationLabel.text = city + ", " + country
+    //                        self.updateData(complitionData, isConnected: self.isConnected)
+    //                        self.windSpeed = windSpeedData
+    //                        print("condition code  - \(conditionCode)")
+    //                    }
+    //                }
+    //            } else {
+    //                self.updateWeatherState(.noInternet, self.windSpeed, self.isConnected)
+    //            }
+    //            self.refreshControl.endRefreshing()
+    //        }
+    //    }
     
     @objc private func refreshWeather() {
-        // Здесь вызовите методы для обновления данных о погоде
-        // Например, перезапустите локационный менеджер для получения новых данных о погоде
-        // По завершении обновления данных о погоде:
+        startNetworkMonitoring()
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.updateWeatherState(self.state, self.windSpeed, self.isConnected)
+            if self.isConnected {
+                guard let location = self.locationManager.location else { return }
+                self.updateWeatherData(for: location)
+            } else {
+                self.updateWeatherState(.noInternet, self.windSpeed, self.isConnected)
+            }
             self.refreshControl.endRefreshing()
         }
     }
