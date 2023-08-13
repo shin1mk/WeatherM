@@ -17,6 +17,9 @@
  stavern norway rain
  58,99964
  10,04645
+ 
+ 52,12164
+ -10,25824
  */
 import UIKit
 import SnapKit
@@ -41,6 +44,8 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     private let refreshControl = UIRefreshControl()
     private var windSpeed: Double = 0.0
     private var isConnected = true
+    private var isAnimatingStone = false
+
     //MARK: Scroll-Content
     private let scrollView: UIScrollView = {
         var view = UIScrollView()
@@ -74,7 +79,6 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         setupTapGestureRecognizer()
         hideComponents()
         startNetworkMonitoring()
-        animateStoneAppearance()
     }
     //MARK: Constraints
     private func setupConstraints() {
@@ -239,11 +243,13 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
         }
     }
     //MARK: stone animation
-    private func animateStoneAppearance() {
+    private func animateStoneAppearance(isWindy: Bool) {
         stoneView.frame.origin.y = stoneView.frame.height
+        stoneView.center.x = contentView.center.x
         let finalPosition = stoneView.frame.origin.y + 100
         let numberOfRebounds = 5
         var currentRebound = 0
+
         func animateWithRebound() {
             UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 0.3, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
                 if currentRebound < numberOfRebounds {
@@ -253,12 +259,25 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 }
             }, completion: { _ in
                 if currentRebound < numberOfRebounds {
-                    currentRebound += 1
+                    currentRebound += 5
                     animateWithRebound()
                 }
             })
         }
         animateWithRebound()
+        
+        if isWindy {
+            animateRockingStone()
+        }
+    }
+    //MARK: Rocking Animation
+    private func animateRockingStone() {
+        let rockingDistance: CGFloat = -20.0
+        let rockingDuration: TimeInterval = 1.0
+
+        UIView.animate(withDuration: rockingDuration, delay: 0, options: [.curveEaseInOut, .autoreverse, .repeat], animations: {
+            self.stoneView.center.x -= rockingDistance
+        }, completion: nil)
     }
     //MARK: Location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -281,15 +300,12 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
                 self.weatherView.conditionLabel.text = weatherConditions
                 self.locationView.locationLabel.text = city + ", " + country
-                
                 self.updateData(complitionData, isConnected: self.isConnected)
                 self.windSpeed = windSpeedData
-                
                 print("condition code  - \(conditionCode)")
             }
         }
     }
-    
     //MARK: updateData
     private func updateData(_ data: CompletionData, isConnected: Bool) {
         print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
@@ -306,7 +322,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 print("rain = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_wet.png"))
             }
-            animateStoneAppearance()
+            animateStoneAppearance(isWindy: isWindy)
         case .hot(windy: let isWindy):
             if isWindy {
                 print("hot windy")
@@ -315,7 +331,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 print("hot = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_cracks.png"))
             }
-            animateStoneAppearance()
+            animateStoneAppearance(isWindy: isWindy)
         case .snow(windy: let isWindy):
             if isWindy {
                 print("snow = windy")
@@ -324,7 +340,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 print("snow = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_snow.png"))
             }
-            animateStoneAppearance()
+            animateStoneAppearance(isWindy: isWindy)
         case .fog(windy: let isWindy):
             if isWindy {
                 print("fog = windy")
@@ -335,7 +351,7 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
                 stoneView.alpha = 0.2
             }
-            animateStoneAppearance()
+            animateStoneAppearance(isWindy: isWindy)
         case .normal(windy: let isWindy):
             if isWindy {
                 print("normal = windy")
@@ -344,13 +360,12 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
                 print("normal = NOT windy")
                 stoneView.setStoneImage(UIImage(named: "image_stone_normal.png"))
             }
-            animateStoneAppearance()
+            animateStoneAppearance(isWindy: isWindy)
         case .noInternet:
             DispatchQueue.main.async { [self] in
                 if !isConnected {
                     stoneView.setStoneImage(UIImage(named: "noInternet.png"))
-                    stoneView.frame.origin.y = CGFloat(100)
-                    animateStoneAppearance()
+                    stoneView.frame.origin.y = CGFloat(250)
                 }
             }
         }
@@ -359,14 +374,12 @@ final class MainViewController: UIViewController, UISearchBarDelegate, CLLocatio
     @objc private func refreshWeather() {
         // Здесь вызовите методы для обновления данных о погоде
         // Например, перезапустите локационный менеджер для получения новых данных о погоде
-
         // По завершении обновления данных о погоде:
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.updateWeatherState(self.state, self.windSpeed, self.isConnected)
             self.refreshControl.endRefreshing()
         }
     }
-
 } // end MainViewController
 //MARK: - extension State
 extension MainViewController {
