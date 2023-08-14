@@ -4,9 +4,8 @@
 //
 //  Created by SHIN MIKHAIL on 30.07.2023.
 //
-/* todo
- создать экран с таблицой для поиска городов найти какой то апи
- https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
+
+/* https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
  Dnepr
  48,4647
  35,0462
@@ -35,7 +34,7 @@ final class MainViewController: UIViewController {
     private var windSpeed: Double = 0.0
     private var isConnected = true
     private var isAnimatingStone = false
-    //MARK: Scroll & Content
+    // Scroll & Content
     private let scrollView: UIScrollView = {
         var view = UIScrollView()
         view.isScrollEnabled = true
@@ -43,8 +42,7 @@ final class MainViewController: UIViewController {
         return view
     }()
     private let contentView = UIView()
- 
-    //MARK: State
+    // State
     private var state: State = .normal(windy: false){
         didSet {
             print("State changed to: \(state)")
@@ -58,7 +56,6 @@ final class MainViewController: UIViewController {
         setupTargets()
         setupLocationManager()
         setupSearchBarDelegate()
-//        setupTapGestureRecognizer()
         hideComponents()
         startNetworkMonitoring()
     }
@@ -66,7 +63,7 @@ final class MainViewController: UIViewController {
     private func hideComponents() {
         infoView.isHidden = true
     }
-    //MARK: RefreshWeather
+    // RefreshWeather
     @objc private func refreshWeather() {
         startNetworkMonitoring()
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -189,14 +186,13 @@ extension MainViewController {
 }
 //MARK: Delegate/Targets
 extension MainViewController: UISearchBarDelegate {
-    //MARK: Search Bar Delegate
+    // Search Bar Delegate
     private func setupSearchBarDelegate() {
-//        searchBar.delegate = self
         locationManager.delegate = self
     }
-    //MARK: Targers
+    // Targers
     private func setupTargets() {
-        locationView.getLocationIconButton().addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
+//        locationView.getLocationIconButton().addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
         locationView.getSearchIconButton().addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
         refreshControl.addTarget(self, action: #selector(refreshWeather), for: .valueChanged)
         infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
@@ -204,18 +200,18 @@ extension MainViewController: UISearchBarDelegate {
 }
 //MARK: Buttons action
 extension MainViewController {
-    //MARK: Location button action
+    // Location button action
     @objc private func locationButtonTapped() {
         print("location icon tapped")
         locationManager.startUpdatingLocation()
     }
-    //MARK: Search button action
+    // Search button action
     @objc private func searchIconTapped() {
         let searchViewController = SearchView()
         searchViewController.modalPresentationStyle = .popover
         present(searchViewController, animated: true, completion: nil)
     }
-    //MARK: Info button action
+    // Info button action
     @objc private func infoButtonTapped() {
         print("info button tapped")
         infoViewAnimation()
@@ -223,13 +219,12 @@ extension MainViewController {
 }
 //MARK: Animations
 extension MainViewController {
-    //MARK: animation Info View
+    // Animation Info View
     private func infoViewAnimation() {
         if infoView.isHidden {
-            // Show the infoView
+            // Show infoView
             infoView.isHidden = false
             infoView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-            
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: []) {
                 self.infoView.transform = .identity
             } completion: { _ in
@@ -243,7 +238,7 @@ extension MainViewController {
             }
         }
     }
-    //MARK: stone animation
+    // Animation StoneView
     private func animateStoneAppearance(isWindy: Bool) {
         stoneView.frame.origin.y = stoneView.frame.height
         stoneView.center.x = contentView.center.x
@@ -271,7 +266,7 @@ extension MainViewController {
             animateRockingStone()
         }
     }
-    //MARK: Rocking Animation
+    // Rocking Animation
     private func animateRockingStone() {
         if isAnimatingStone {
             let rockingDistance: CGFloat = -20.0
@@ -285,7 +280,6 @@ extension MainViewController {
 }
 //MARK: NetworkManager
 extension MainViewController {
-    //MARK: - Network Monitoring
     private func startNetworkMonitoring() {
         let monitor = NWPathMonitor()
         let queue = DispatchQueue(label: "NetworkMonitor")
@@ -309,21 +303,20 @@ extension MainViewController {
         }
         monitor.start(queue: queue)
     }
-
 }
 //MARK: Location
 extension MainViewController: CLLocationManagerDelegate {
-    //MARK: Request geo/start geo
+    // Request geo/start geo
     private func setupLocationManager() {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
     }
-    //MARK: Location
+    // Location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         updateLocationData(for: location)
     }
-    // updateLocation
+    // update Location
     private func updateLocationData(for location: CLLocation) {
         weatherManager.updateWeather(for: location.coordinate.latitude, longitude: location.coordinate.longitude) { [weak self] complitionData in
             guard let self = self else { return }
@@ -350,12 +343,12 @@ extension MainViewController: CLLocationManagerDelegate {
 }
 //MARK: UpdateWeather
 extension MainViewController {
-    //MARK: updateWeatherData
+    // updateWeatherData
     private func updateWeatherData(_ data: CompletionData, isConnected: Bool) {
         print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
         state = .init(temperature: data.temperature, conditionCode: data.id, windSpeed: data.windSpeed)
     }
-    //MARK: updateWeatherState
+    // updateWeatherState
     private func updateWeatherState(_ state: State, _ windSpeed: Double, _ isConnected: Bool) {
         switch state {
         case .rain(windy: let isWindy):
