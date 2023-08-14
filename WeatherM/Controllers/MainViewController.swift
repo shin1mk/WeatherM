@@ -43,14 +43,7 @@ final class MainViewController: UIViewController {
         return view
     }()
     private let contentView = UIView()
-    //MARK: SearchBar
-    private var isSearchBarVisible = false
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.placeholder = "Search for a city"
-        searchBar.backgroundImage = UIImage()
-        return searchBar
-    }()
+ 
     //MARK: State
     private var state: State = .normal(windy: false){
         didSet {
@@ -65,13 +58,12 @@ final class MainViewController: UIViewController {
         setupTargets()
         setupLocationManager()
         setupSearchBarDelegate()
-        setupTapGestureRecognizer()
+//        setupTapGestureRecognizer()
         hideComponents()
         startNetworkMonitoring()
     }
     //MARK: Methods
     private func hideComponents() {
-        searchBar.isHidden = true
         infoView.isHidden = true
     }
     //MARK: RefreshWeather
@@ -115,13 +107,6 @@ extension MainViewController {
             make.centerX.equalTo(contentView)
             make.trailing.leading.equalTo(contentView)
             make.top.equalTo(contentView.snp.top).offset(-100)
-        }
-        // searchBar
-        contentView.addSubview(searchBar)
-        searchBar.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(-20)
-            make.horizontalEdges.equalToSuperview().inset(10)
-            make.height.equalTo(40)
         }
         // weather view
         view.addSubview(weatherView)
@@ -202,28 +187,11 @@ extension MainViewController {
         }
     }
 }
-//MARK: Keyboard
-extension MainViewController: UIGestureRecognizerDelegate {
-    // Gesture
-    private func setupTapGestureRecognizer() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        tapGesture.delegate = self
-        view.addGestureRecognizer(tapGesture)
-    }
-    // Keyboard
-    @objc private func handleTap() {
-        // Скрываем клавиатуру
-        searchBar.resignFirstResponder()
-        // Скрываем UISearchBar
-        isSearchBarVisible = false
-        searchBar.isHidden = true
-    }
-}
 //MARK: Delegate/Targets
 extension MainViewController: UISearchBarDelegate {
     //MARK: Search Bar Delegate
     private func setupSearchBarDelegate() {
-        searchBar.delegate = self
+//        searchBar.delegate = self
         locationManager.delegate = self
     }
     //MARK: Targers
@@ -243,15 +211,9 @@ extension MainViewController {
     }
     //MARK: Search button action
     @objc private func searchIconTapped() {
-        print("search icon tapped")
-        isSearchBarVisible.toggle()
-        searchBar.isHidden = !isSearchBarVisible
-        // Show the keyboard
-        if isSearchBarVisible {
-            searchBar.becomeFirstResponder()
-        } else {
-            searchBar.resignFirstResponder()
-        }
+        let searchViewController = SearchView()
+        searchViewController.modalPresentationStyle = .popover
+        present(searchViewController, animated: true, completion: nil)
     }
     //MARK: Info button action
     @objc private func infoButtonTapped() {
