@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		139F07E72A8975E500716E6F /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 139F07E62A8975E500716E6F /* SearchView.swift */; };
 		13B6BD172A7BF2FB003236E7 /* StoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B6BD162A7BF2FB003236E7 /* StoneView.swift */; };
+		13C2187F2A8AE55A003FEC2B /* CountryAPIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C2187E2A8AE55A003FEC2B /* CountryAPIManager.swift */; };
 		13C730462A76F0A3006FF6FD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C730452A76F0A3006FF6FD /* AppDelegate.swift */; };
 		13C730482A76F0A3006FF6FD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C730472A76F0A3006FF6FD /* SceneDelegate.swift */; };
 		13C730502A76F0A3006FF6FD /* WeatherM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 13C7304E2A76F0A3006FF6FD /* WeatherM.xcdatamodeld */; };
@@ -54,6 +55,7 @@
 /* Begin PBXFileReference section */
 		139F07E62A8975E500716E6F /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		13B6BD162A7BF2FB003236E7 /* StoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneView.swift; sourceTree = "<group>"; };
+		13C2187E2A8AE55A003FEC2B /* CountryAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryAPIManager.swift; sourceTree = "<group>"; };
 		13C730422A76F0A3006FF6FD /* WeatherM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13C730452A76F0A3006FF6FD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		13C730472A76F0A3006FF6FD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -230,6 +232,7 @@
 			isa = PBXGroup;
 			children = (
 				13F418EC2A7C61C900E6C7C8 /* WeatherManager.swift */,
+				13C2187E2A8AE55A003FEC2B /* CountryAPIManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -288,6 +291,8 @@
 			dependencies = (
 			);
 			name = WeatherM;
+			packageProductDependencies = (
+			);
 			productName = WeatherM;
 			productReference = 13C730422A76F0A3006FF6FD /* WeatherM.app */;
 			productType = "com.apple.product-type.application";
@@ -363,6 +368,8 @@
 				Base,
 			);
 			mainGroup = 13C730392A76F0A3006FF6FD;
+			packageReferences = (
+			);
 			productRefGroup = 13C730432A76F0A3006FF6FD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -515,6 +522,7 @@
 				13C7307C2A76F2E2006FF6FD /* MainViewController.swift in Sources */,
 				13F418E72A7C614200E6C7C8 /* LocationView.swift in Sources */,
 				13C730462A76F0A3006FF6FD /* AppDelegate.swift in Sources */,
+				13C2187F2A8AE55A003FEC2B /* CountryAPIManager.swift in Sources */,
 				13F418ED2A7C61C900E6C7C8 /* WeatherManager.swift in Sources */,
 				13F5677E2A77038F006DF976 /* CustomFonts.swift in Sources */,
 				13C730502A76F0A3006FF6FD /* WeatherM.xcdatamodeld in Sources */,

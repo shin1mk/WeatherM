@@ -76,15 +76,12 @@ class SearchView: UIViewController, UISearchBarDelegate, UITableViewDataSource, 
     // MARK: - UISearchBarDelegate
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         print("Search text: \(searchText)")
-        
         if searchText.isEmpty {
             filteredCities = []
         } else {
             filteredCities = cities.filter { $0.lowercased().contains(searchText.lowercased()) }
         }
-        
         print("Filtered cities: \(filteredCities)")
-        
         tableView.reloadData() // Обновляем
         tableView.isHidden = filteredCities.isEmpty
     }

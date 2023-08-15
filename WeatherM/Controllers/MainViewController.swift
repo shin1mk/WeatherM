@@ -5,7 +5,8 @@
 //  Created by SHIN MIKHAIL on 30.07.2023.
 //
 
-/* https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
+/*
+ https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
  Dnepr
  48,4647
  35,0462
