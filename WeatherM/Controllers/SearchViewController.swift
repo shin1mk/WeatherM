@@ -1,5 +1,5 @@
 //
-//  SearchView.swift
+//  SearchViewController.swift
 //  WeatherM
 //
 //  Created by SHIN MIKHAIL on 13.08.2023.
@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class SearchView: UIViewController, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
+final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "Search for a city"

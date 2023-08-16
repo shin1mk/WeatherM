@@ -64,22 +64,7 @@ final class MainViewController: UIViewController {
     private func hideComponents() {
         infoView.isHidden = true
     }
-    // RefreshWeather
-    @objc private func refreshWeather() {
-        startNetworkMonitoring()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            if self.isConnected {
-                guard let location = self.locationManager.location else { return }
-                self.updateLocationData(for: location)
-            } else {
-                self.updateWeatherState(.noInternet, self.windSpeed, self.isConnected)
-            }
-            self.refreshControl.endRefreshing()
-        }
-    }
-} // end MainViewController
-//MARK: Constraints
-extension MainViewController {
+    // Constraints
     private func setupConstraints() {
         // background image
         view.addSubview(backgroundImageView)
@@ -138,49 +123,82 @@ extension MainViewController {
             make.height.equalTo(372)
         }
     }
-}
-//MARK: State
-extension MainViewController {
-    enum State: Equatable {
-        case rain(windy: Bool)
-        case fog(windy: Bool)
-        case hot(windy: Bool)
-        case snow(windy: Bool)
-        case normal(windy: Bool)
-        case noInternet
+    // Network Monitoring
+    private func startNetworkMonitoring() {
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "NetworkMonitor")
         
-        var isWindy: Bool {
-            switch self {
-            case .noInternet:
-                print("No internet")
-                return false
-            case .snow(let windy):
-                return windy
-            case .hot(let windy):
-                return windy
-            case .rain(let windy):
-                return windy
-            case .fog(let windy):
-                return windy
-            case .normal(let windy):
-                return windy
+        monitor.pathUpdateHandler = { [weak self] path in
+            DispatchQueue.main.async {
+                self?.isConnected = path.status == .satisfied
+                if self?.isConnected == true {
+                    print("Internet connection is available.")
+                    self?.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
+                    self?.isAnimatingStone = true
+                } else {
+                    print("No internet connection.")
+                    self?.weatherView.temperatureLabel.text = "--°"
+                    self?.weatherView.conditionLabel.text = "-"
+                    self?.locationView.locationLabel.text = "no internet"
+                    self?.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
+                    self?.isAnimatingStone = false
+                }
             }
         }
-        
-        init(temperature: Int, conditionCode: Int, windSpeed: Double) {
-            let temperatureCelsius = temperature - 273
-            if temperatureCelsius > 30 {
-                self = .hot(windy: windSpeed > 3)
-            } else if temperatureCelsius < 30 && conditionCode >= 100 && conditionCode <= 531 {
-                self = .rain(windy: windSpeed > 3)
-            } else if temperatureCelsius < 30 && conditionCode >= 600 && conditionCode <= 622 {
-                self = .snow(windy: windSpeed > 3)
-            } else if temperatureCelsius < 30 && conditionCode >= 701 && conditionCode <= 781 {
-                self = .fog(windy: windSpeed > 3)
-            } else if temperatureCelsius < 30 && conditionCode >= 800 && conditionCode <= 804 {
-                self = .normal(windy: windSpeed > 3)
+        monitor.start(queue: queue)
+    }
+    // updateWeatherData
+    private func updateWeatherData(_ data: CompletionData, isConnected: Bool) {
+        print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
+        state = .init(temperature: data.temperature, conditionCode: data.id, windSpeed: data.windSpeed)
+    }
+    // Request geo/start geo
+    private func setupLocationManager() {
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+    // RefreshWeather
+    @objc private func refreshWeather() {
+        startNetworkMonitoring()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if self.isConnected {
+                guard let location = self.locationManager.location else { return }
+                self.updateLocationData(for: location)
             } else {
-                self = .normal(windy: false)
+                self.updateWeatherState(.noInternet, self.windSpeed, self.isConnected)
+            }
+            self.refreshControl.endRefreshing()
+        }
+    }
+} // end MainViewController
+//MARK: Location
+extension MainViewController: CLLocationManagerDelegate {
+    // Location Manager
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        updateLocationData(for: location)
+    }
+    // Update Location
+    private func updateLocationData(for location: CLLocation) {
+        weatherManager.updateWeather(for: location.coordinate.latitude, longitude: location.coordinate.longitude) { [weak self] complitionData in
+            guard let self = self else { return }
+            
+            let weatherConditions = complitionData.weather
+            let temperatureKelvin = complitionData.temperature
+            let temperatureCelsiusValue = Double(temperatureKelvin) - 273.15
+            let temperatureCelsius = Int(ceil(temperatureCelsiusValue))
+            let city = complitionData.city
+            let country = complitionData.country
+            let windSpeedData = complitionData.windSpeed
+            let conditionCode = complitionData.cod
+            
+            DispatchQueue.main.async {
+                self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
+                self.weatherView.conditionLabel.text = weatherConditions
+                self.locationView.locationLabel.text = city + ", " + country
+                self.updateWeatherData(complitionData, isConnected: self.isConnected)
+                self.windSpeed = windSpeedData
+                print("condition code - \(conditionCode)")
             }
         }
     }
@@ -193,7 +211,7 @@ extension MainViewController: UISearchBarDelegate {
     }
     // Targers
     private func setupTargets() {
-//        locationView.getLocationIconButton().addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
+        locationView.getLocationIconButton().addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
         locationView.getSearchIconButton().addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
         refreshControl.addTarget(self, action: #selector(refreshWeather), for: .valueChanged)
         infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
@@ -208,7 +226,7 @@ extension MainViewController {
     }
     // Search button action
     @objc private func searchIconTapped() {
-        let searchViewController = SearchView()
+        let searchViewController = SearchViewController()
         searchViewController.modalPresentationStyle = .popover
         present(searchViewController, animated: true, completion: nil)
     }
@@ -279,76 +297,17 @@ extension MainViewController {
         }
     }
 }
-//MARK: NetworkManager
+
+
+
+
+
+
+
+
+
+//MARK: state
 extension MainViewController {
-    private func startNetworkMonitoring() {
-        let monitor = NWPathMonitor()
-        let queue = DispatchQueue(label: "NetworkMonitor")
-        
-        monitor.pathUpdateHandler = { [weak self] path in
-            DispatchQueue.main.async {
-                self?.isConnected = path.status == .satisfied
-                if self?.isConnected == true {
-                    print("Internet connection is available.")
-                    self?.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
-                    self?.isAnimatingStone = true
-                } else {
-                    print("No internet connection.")
-                    self?.weatherView.temperatureLabel.text = "--°"
-                    self?.weatherView.conditionLabel.text = "-"
-                    self?.locationView.locationLabel.text = "no internet"
-                    self?.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
-                    self?.isAnimatingStone = false
-                }
-            }
-        }
-        monitor.start(queue: queue)
-    }
-}
-//MARK: Location
-extension MainViewController: CLLocationManagerDelegate {
-    // Request geo/start geo
-    private func setupLocationManager() {
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
-    // Location
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        updateLocationData(for: location)
-    }
-    // update Location
-    private func updateLocationData(for location: CLLocation) {
-        weatherManager.updateWeather(for: location.coordinate.latitude, longitude: location.coordinate.longitude) { [weak self] complitionData in
-            guard let self = self else { return }
-            
-            let weatherConditions = complitionData.weather
-            let temperatureKelvin = complitionData.temperature
-            let temperatureCelsiusValue = Double(temperatureKelvin) - 273.15
-            let temperatureCelsius = Int(ceil(temperatureCelsiusValue))
-            let city = complitionData.city
-            let country = complitionData.country
-            let windSpeedData = complitionData.windSpeed
-            let conditionCode = complitionData.cod
-            
-            DispatchQueue.main.async {
-                self.weatherView.temperatureLabel.text = "\(temperatureCelsius)°"
-                self.weatherView.conditionLabel.text = weatherConditions
-                self.locationView.locationLabel.text = city + ", " + country
-                self.updateWeatherData(complitionData, isConnected: self.isConnected)
-                self.windSpeed = windSpeedData
-                print("condition code - \(conditionCode)")
-            }
-        }
-    }
-}
-//MARK: UpdateWeather
-extension MainViewController {
-    // updateWeatherData
-    private func updateWeatherData(_ data: CompletionData, isConnected: Bool) {
-        print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
-        state = .init(temperature: data.temperature, conditionCode: data.id, windSpeed: data.windSpeed)
-    }
     // updateWeatherState
     private func updateWeatherState(_ state: State, _ windSpeed: Double, _ isConnected: Bool) {
         switch state {
@@ -405,6 +364,52 @@ extension MainViewController {
                     stoneView.setStoneImage(UIImage(named: "noInternet.png"))
                     stoneView.frame.origin.y = CGFloat(250)
                 }
+            }
+        }
+    }
+}
+//MARK: State
+extension MainViewController {
+    enum State: Equatable {
+        case rain(windy: Bool)
+        case fog(windy: Bool)
+        case hot(windy: Bool)
+        case snow(windy: Bool)
+        case normal(windy: Bool)
+        case noInternet
+        
+        var isWindy: Bool {
+            switch self {
+            case .noInternet:
+                print("No internet")
+                return false
+            case .snow(let windy):
+                return windy
+            case .hot(let windy):
+                return windy
+            case .rain(let windy):
+                return windy
+            case .fog(let windy):
+                return windy
+            case .normal(let windy):
+                return windy
+            }
+        }
+        
+        init(temperature: Int, conditionCode: Int, windSpeed: Double) {
+            let temperatureCelsius = temperature - 273
+            if temperatureCelsius > 30 {
+                self = .hot(windy: windSpeed > 3)
+            } else if temperatureCelsius < 30 && conditionCode >= 100 && conditionCode <= 531 {
+                self = .rain(windy: windSpeed > 3)
+            } else if temperatureCelsius < 30 && conditionCode >= 600 && conditionCode <= 622 {
+                self = .snow(windy: windSpeed > 3)
+            } else if temperatureCelsius < 30 && conditionCode >= 701 && conditionCode <= 781 {
+                self = .fog(windy: windSpeed > 3)
+            } else if temperatureCelsius < 30 && conditionCode >= 800 && conditionCode <= 804 {
+                self = .normal(windy: windSpeed > 3)
+            } else {
+                self = .normal(windy: false)
             }
         }
     }
