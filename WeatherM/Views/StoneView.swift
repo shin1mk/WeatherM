@@ -12,6 +12,7 @@ import Network
 final class StoneView: UIView {
     private var windSpeed: Double = 0.0
     private var isConnected = true
+
     // State
     var state: State = .normal(windy: false){
         didSet {
@@ -52,7 +53,6 @@ final class StoneView: UIView {
         print("скорость ветра: \(windSpeed)")
         
         switch state {
-            
         case .rain(windy: let isWindy):
             if isWindy {
                 print("rain = windy")

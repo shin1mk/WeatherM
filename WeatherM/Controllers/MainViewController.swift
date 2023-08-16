@@ -35,7 +35,6 @@ final class MainViewController: UIViewController {
     private var isAnimatingStone = false
     private var isConnected = true
     private var windSpeed: Double = 0.0
-
     // Scroll & Content
     private let scrollView: UIScrollView = {
         var view = UIScrollView()
@@ -44,7 +43,6 @@ final class MainViewController: UIViewController {
         return view
     }()
     private let contentView = UIView()
-
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -130,14 +128,14 @@ final class MainViewController: UIViewController {
                 if self?.isConnected == true {
                     print("Internet connection is available.")
                     self?.stoneView.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
-                    self?.isAnimatingStone = true
+//                    self?.isAnimatingStone = true
                 } else {
                     print("No internet connection.")
                     self?.weatherView.temperatureLabel.text = "--°"
                     self?.weatherView.conditionLabel.text = "-"
                     self?.locationView.locationLabel.text = "no internet"
                     self?.stoneView.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
-                    self?.isAnimatingStone = false
+//                    self?.isAnimatingStone = false
                 }
             }
         }
@@ -183,6 +181,7 @@ final class MainViewController: UIViewController {
             if self.isConnected {
                 guard let location = self.locationManager.location else { return }
                 self.updateLocationData(for: location)
+                self.stoneView.updateWeatherState(.noInternet, self.windSpeed, self.isConnected)
             } else {
                 self.stoneView.updateWeatherState(.noInternet, self.windSpeed, self.isConnected)
             }
@@ -202,20 +201,13 @@ extension MainViewController: CLLocationManagerDelegate {
         weatherManager.updateWeather(for: location.coordinate.latitude, longitude: location.coordinate.longitude) { [weak self] complitionData in
             guard let self = self else { return }
             
-            let weatherConditions = complitionData.weather
-            let temperature = complitionData.temperature
-            let city = complitionData.city
-            let country = complitionData.country
-            let windSpeedData = complitionData.windSpeed
-            let conditionCode = complitionData.cod
-            
             DispatchQueue.main.async {
-                self.weatherView.temperatureLabel.text = "\(temperature)°"
-                self.weatherView.conditionLabel.text = weatherConditions
-                self.locationView.locationLabel.text = city + ", " + country
+                self.weatherView.temperatureLabel.text = "\(complitionData.temperature)°"
+                self.weatherView.conditionLabel.text = complitionData.weather
+                self.locationView.locationLabel.text = complitionData.city + ", " + complitionData.country
                 self.stoneView.updateWeatherData(complitionData, isConnected: self.isConnected)
-                self.windSpeed = windSpeedData
-                print("condition code - \(conditionCode)")
+                self.windSpeed = complitionData.windSpeed
+                print("condition code - \(complitionData.cod)")
             }
         }
     }
