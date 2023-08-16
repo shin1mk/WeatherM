@@ -6,7 +6,6 @@
 //
 
 /*
- https://openweathermap.org/weathermap?basemap=map&cities=true&layer=radar&lat=65.2107&lon=-10.5249&zoom=6
  Dnepr
  48,4647
  35,0462
@@ -57,6 +56,7 @@ final class MainViewController: UIViewController {
         setupTargets()
         setupLocationManager()
         setupSearchBarDelegate()
+        setupInfoViewDelegate()
         hideComponents()
         startNetworkMonitoring()
     }
@@ -217,6 +217,19 @@ extension MainViewController: UISearchBarDelegate {
         infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
     }
 }
+//MARK: InfoViewDelegate
+extension MainViewController: InfoViewDelegate {
+    private func setupInfoViewDelegate() {
+        infoView.delegate = self
+    }
+
+    func hideInfoView() {
+        weatherView.isHidden = false
+        locationView.isHidden = false
+        stoneView.isHidden = false
+        infoButton.isHidden = false
+    }
+}
 //MARK: Buttons action
 extension MainViewController {
     // Location button action
@@ -241,6 +254,10 @@ extension MainViewController {
     // Animation Info View
     private func infoViewAnimation() {
         if infoView.isHidden {
+            weatherView.isHidden = true
+            locationView.isHidden = true
+            stoneView.isHidden = true
+            infoButton.isHidden = true
             // Show infoView
             infoView.isHidden = false
             infoView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
@@ -297,13 +314,6 @@ extension MainViewController {
         }
     }
 }
-
-
-
-
-
-
-
 
 
 //MARK: state

@@ -8,7 +8,13 @@
 import UIKit
 import SnapKit
 
+protocol InfoViewDelegate: AnyObject {
+    func hideInfoView()
+}
+
 final class InfoView: UIView {
+    weak var delegate: InfoViewDelegate?
+
     private let backgroundInfoView: UIImageView = {
         let backgroundView = UIImageView()
         backgroundView.backgroundColor = UIColor(red: 251/255, green: 95/255, blue: 41/255, alpha: 1)
@@ -93,11 +99,11 @@ final class InfoView: UIView {
             make.width.equalTo(115)
         }
     }
-    
+    // Target
     private func setupTarget() {
         hideButton.addTarget(self, action: #selector(hideButtonTapped), for: .touchUpInside)
     }
-    
+    // Animation
     private func hideButtonAnimation() {
         UIView.animate(withDuration: 0.2, animations: {
             // Анимация для скрытия всего InfoView
@@ -108,10 +114,12 @@ final class InfoView: UIView {
             self.transform = .identity
         }
     }
-    
+    // Button tapped
     @objc private func hideButtonTapped() {
         hideButton.setTitleColor(UIColor.white, for: .highlighted)
         hideButtonAnimation()
+        
+        delegate?.hideInfoView()
     }
 }
 

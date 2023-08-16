@@ -8,7 +8,8 @@
 import UIKit
 import SnapKit
 
-final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
+final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource {
+    //MARK: Properties
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "Search for a city"
@@ -24,17 +25,15 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
     }()
     var cities = ["City1", "City2", "City3", "City4", "City5", "Denver"] // список городов
     var filteredCities: [String] = []
-    
     //MARK: LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-//        activateSearchBar()
         setupBackgroundView()
-        setupSwipeGesture()
         setupConstraints()
         setupDelegates()
+        setupGestures()
     }
-    //MARK: Methods
+    //MARK: Constraints
     private func setupConstraints() {
         view.addSubview(searchBar)
         searchBar.snp.makeConstraints { make in
@@ -48,30 +47,16 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
             make.leading.trailing.bottom.equalToSuperview()
         }
     }
-    
-    private func setupDelegates() {
-        searchBar.delegate = self
-        tableView.dataSource = self
-    }
-    
+    //MARK: Methods
     private func setupBackgroundView() {
         let backgroundView = UIView(frame: view.bounds)
         backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0.8)
         view.addSubview(backgroundView)
     }
-    
-    private func setupSwipeGesture() {
-        let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissSearchView))
-        swipeGesture.direction = .down
-        view.addGestureRecognizer(swipeGesture)
-    }
-    
-//    private func activateSearchBar() {
-//        searchBar.becomeFirstResponder()
-//    }
-    
-    @objc private func dismissSearchView() {
-        dismiss(animated: true, completion: nil)
+    // Delegates
+    private func setupDelegates() {
+        searchBar.delegate = self
+        tableView.dataSource = self
     }
     // MARK: - UISearchBarDelegate
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -85,7 +70,33 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         tableView.reloadData() // Обновляем
         tableView.isHidden = filteredCities.isEmpty
     }
-    // MARK: - numberOfRowsInSection
+} // end SearchViewController
+//MARK: Gestures
+extension SearchViewController: UIGestureRecognizerDelegate {
+    // Gestures
+    private func setupGestures() {
+        let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissSearchView))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        swipeGesture.direction = .down
+        tapGesture.delegate = self
+        view.addGestureRecognizer(swipeGesture)
+        view.addGestureRecognizer(tapGesture)
+    }
+    // Dismiss
+    @objc private func dismissSearchView() {
+        dismiss(animated: true, completion: nil)
+    }
+    // Tap
+    @objc private func handleTap(sender: UITapGestureRecognizer) {
+        let tapLocation = sender.location(in: view)
+        if !searchBar.frame.contains(tapLocation) {
+            searchBar.endEditing(true)
+        }
+    }
+}
+//MARK: Table View
+extension SearchViewController: UITableViewDelegate {
+    // numberOfRowsInSection
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredCities.count
     }
