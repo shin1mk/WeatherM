@@ -16,7 +16,7 @@ final class WeatherManager {
                       longitude: Double,
                       completion: @escaping (CompletionData) -> Void) {
         let apiKey = "57f0aada42de195465afd5586ed94a91"
-        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)") else {return}
+        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)&units=metric") else {return}
         queue.async {
             let task = URLSession.shared.dataTask(with: url) { data, responce, error in
                 if let data = data, let weather = try? JSONDecoder().decode(WeatherData.self, from: data) {
