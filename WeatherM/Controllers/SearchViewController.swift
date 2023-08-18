@@ -58,7 +58,7 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         searchBar.delegate = self
         tableView.dataSource = self
     }
-    // MARK: - UISearchBarDelegate
+    // Search Bar
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         print("Search text: \(searchText)")
         if searchText.isEmpty {

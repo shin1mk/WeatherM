@@ -106,10 +106,8 @@ final class InfoView: UIView {
     // Animation
     private func hideButtonAnimation() {
         UIView.animate(withDuration: 0.2, animations: {
-            // Анимация для скрытия всего InfoView
             self.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
         }) { _ in
-            // После анимации скрываем InfoView и сбрасываем трансформацию
             self.isHidden = true
             self.transform = .identity
         }

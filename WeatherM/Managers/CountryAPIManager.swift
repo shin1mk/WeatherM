@@ -10,10 +10,3 @@ import Foundation
 final class CountryAPIManager {
     
 }
-
-
-
-
-/*
- разобраться с анимацией стоун вью
- */

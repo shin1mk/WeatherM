@@ -32,7 +32,7 @@ final class MainViewController: UIViewController {
     private let locationManager = CLLocationManager()
     private let refreshControl = UIRefreshControl()
 
-    private var isAnimatingStone = false
+//    private var isAnimatingStone = false
     private var isConnected = true
     private var windSpeed: Double = 0.0
     // Scroll & Content
@@ -128,14 +128,12 @@ final class MainViewController: UIViewController {
                 if self?.isConnected == true {
                     print("Internet connection is available.")
                     self?.stoneView.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
-//                    self?.isAnimatingStone = true
                 } else {
                     print("No internet connection.")
                     self?.weatherView.temperatureLabel.text = "--°"
                     self?.weatherView.conditionLabel.text = "-"
                     self?.locationView.locationLabel.text = "no internet"
                     self?.stoneView.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
-//                    self?.isAnimatingStone = false
                 }
             }
         }
@@ -188,6 +186,7 @@ final class MainViewController: UIViewController {
             self.refreshControl.endRefreshing()
         }
     }
+
 } // end MainViewController
 //MARK: Location
 extension MainViewController: CLLocationManagerDelegate {
