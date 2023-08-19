@@ -10,6 +10,12 @@ import SnapKit
 import Foundation
 
 final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource {
+    private let countryManager = CountryManager(queue: DispatchQueue(label: "CountryManager_working_queue", qos: .userInitiated))
+    private let stoneView = StoneView()
+    private let weatherView = WeatherView()
+    private let locationView = LocationView()
+    private var isConnected = true
+    private var windSpeed: Double = 0.0
     //MARK: Properties
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -62,28 +68,30 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
     }
     // Search Bar
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
-            filteredCities = []
-        } else {
-            filteredCities = cities.filter { $0.lowercased().contains(searchText.lowercased()) }
-        }
-        print("Filtered cities: \(filteredCities)")
-        tableView.reloadData() // Обновляем
-        tableView.isHidden = filteredCities.isEmpty
-        
-        // Вызываем функцию fetchWeather, когда пользователь вводит город
-        if let selectedCity = filteredCities.first {
-            // Парсим выбранный город и код страны (если они есть)
-            let components = selectedCity.split(separator: ",")
-            let city = String(components.first ?? "")
-            let countryCode = String(components.last ?? "")
+            if searchText.isEmpty {
+                filteredCities = []
+            } else {
+                filteredCities = cities.filter { $0.lowercased().contains(searchText.lowercased()) }
+            }
+            print("Filtered cities: \(filteredCities)")
+            tableView.reloadData() // Обновляем
+            tableView.isHidden = filteredCities.isEmpty
             
-            // Вызываем функцию fetchWeather для получения данных о погоде
-            fetchWeather(for: city, countryCode: countryCode) { temperature, windSpeed in
-                // Вы можете сделать что-то с этой температурой, например, отобразить ее на экране
+            // Вызываем функцию updateCountry, когда пользователь вводит город
+            if let selectedCity = filteredCities.first {
+                // Парсим выбранный город и код страны (если они есть)
+                let components = selectedCity.split(separator: ",")
+                let city = String(components.first ?? "")
+                let countryCode = String(components.last ?? "")
+                
+                // Вызываем функцию updateCountry для получения данных о погоде
+                countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
+                    // Вы можете сделать что-то с полученными данными о погоде
+                    print("Текущая температура в \(selectedCity): \(completionData.temperature)°C")
+                    print("Скорость ветра в \(selectedCity): \(completionData.windSpeed) м/с")
+                }
             }
         }
-    }
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         if let selectedCity = searchBar.text {
             // Парсим выбранный город и код страны (если они есть)
@@ -92,8 +100,7 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
             let countryCode = String(components.last ?? "")
             
             // Вызываем функцию fetchWeather для получения данных о погоде
-            fetchWeather(for: city, countryCode: countryCode) { temperature, windSpeed in
-                print("Текущая температура в \(selectedCity): \(temperature)°C")
+            countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
                 // Вы можете сделать что-то с этой температурой, например, отобразить ее на экране
             }
         }
@@ -146,15 +153,22 @@ extension SearchViewController: UITableViewDelegate {
         let city = String(components.first ?? "")
         let countryCode = String(components.last ?? "")
         
-        fetchWeather(for: city, countryCode: countryCode) { temperature, windSpeed in
+        countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
+            let temperature = completionData.temperature
+            let windSpeed = completionData.windSpeed
+
             print("Текущая температура в \(selectedCity): \(temperature)°C")
-            print("Скорость ветра: \(selectedCity): \(windSpeed) м/с")
+            print("Скорость ветра в \(selectedCity): \(windSpeed) м/с")
+
             
             // Обновите ваш интерфейс с информацией о погоде здесь
             DispatchQueue.main.async {
                 // Например, обновите UILabels на экране
-                //                self.temperatureLabel.text = "\(temperature)°C"
-                //                self.windSpeedLabel.text = "\(windSpeed) м/с"
+                self.weatherView.temperatureLabel.text = "\(completionData.temperature)°"
+                self.weatherView.conditionLabel.text = completionData.weather
+                self.locationView.locationLabel.text = completionData.city + ", " + completionData.country
+                self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
+                self.windSpeed = completionData.windSpeed
                 // сворачиваем по нажатию на выбранный город
                 self.dismiss(animated: true, completion: nil)
             }
@@ -166,40 +180,39 @@ extension SearchViewController: UITableViewDelegate {
     }
 }
 
-extension SearchViewController {
-    func fetchWeather(for city: String, countryCode: String, completion: @escaping (Int, Double) -> Void) {
-        let apiKey = "57f0aada42de195465afd5586ed94a91"
-        let urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(city),\(countryCode)&appid=\(apiKey)&units=metric"
-        
-        if let url = URL(string: urlString) {
-            let task = URLSession.shared.dataTask(with: url) { data, response, error in
-                if let error = error {
-                    print("Ошибка: \(error)")
-                    print("Error: \(error.localizedDescription)")
-                    return
-                }
-                
-                if let data = data {
-                    do {
-                        if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                            if let main = json["main"] as? [String: Any],
-                               let temperature = main["temp"] as? Double,
-                               let wind = json["wind"] as? [String: Any],
-                               let windSpeed = wind["speed"] as? Double {
-                                print("Текущая температура в \(city): \(temperature)°C")
-                                completion(Int(ceil(temperature)), windSpeed)
-                            } else {
-                                print("Ошибка при получении данных о погоде.")
-                            }
-                        }
-                    } catch {
-                        print("Ошибка при обработке ответа: \(error)")
-                    }
-                }
-            }
-            task.resume()
-        } else {
-            print("Ошибка в URL.")
-        }
-    }
-}
+//extension SearchViewController {
+//    func fetchWeather(for city: String, countryCode: String, completion: @escaping (Int, Double) -> Void) {
+//        let apiKey = "57f0aada42de195465afd5586ed94a91"
+//        let urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(city),\(countryCode)&appid=\(apiKey)&units=metric"
+//        
+//        if let url = URL(string: urlString) {
+//            let task = URLSession.shared.dataTask(with: url) { data, response, error in
+//                if let error = error {
+//                    print("Ошибка: \(error)")
+//                    print("Error: \(error.localizedDescription)")
+//                    return
+//                }
+//                
+//                if let data = data {
+//                    do {
+//                        if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+//                            if let main = json["main"] as? [String: Any],
+//                               let temperature = main["temp"] as? Double,
+//                               let wind = json["wind"] as? [String: Any],
+//                               let windSpeed = wind["speed"] as? Double {
+//                                completion(Int(ceil(temperature)), windSpeed)
+//                            } else {
+//                                print("Ошибка при получении данных о погоде.")
+//                            }
+//                        }
+//                    } catch {
+//                        print("Ошибка при обработке ответа: \(error)")
+//                    }
+//                }
+//            }
+//            task.resume()
+//        } else {
+//            print("Ошибка в URL.")
+//        }
+//    }
+//}
