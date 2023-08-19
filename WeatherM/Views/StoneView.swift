@@ -13,6 +13,8 @@ final class StoneView: UIView {
     private var windSpeed: Double = 0.0
     private var isConnected = true
     private var isAnimating = false
+    private var stoneImageView = UIImageView()
+    private var activityIndicator = UIActivityIndicatorView(style: .large)
     // State
     var state: State = .normal(windy: false){
         didSet {
@@ -20,8 +22,6 @@ final class StoneView: UIView {
             updateWeatherState(state, windSpeed, isConnected)
         }
     }
-    private var stoneImageView = UIImageView()
-    private var activityIndicator = UIActivityIndicatorView(style: .large)
     //MARK: Init
     init() {
         super.init(frame: .zero)
@@ -43,15 +43,16 @@ final class StoneView: UIView {
     func setStoneImage(_ image: UIImage?) {
         stoneImageView.image = image
     }
+    // UpdateWeatherData
      func updateWeatherData(_ data: CompletionData, isConnected: Bool) {
         print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
          updateWeatherState(.normal(windy: data.windSpeed >= 3), data.windSpeed, isConnected)
     }
-    // updateWeatherState
+    // UpdateWeatherState
     func updateWeatherState(_ state: State, _ windSpeed: Double, _ isConnected: Bool) {
         print("стейт апдейт везер: \(state)")
         print("скорость ветра: \(windSpeed)")
-        
+
         switch state {
         case .rain(windy: let isWindy):
             if isWindy {
@@ -105,73 +106,51 @@ final class StoneView: UIView {
                 if !isConnected {
                     self.setStoneImage(UIImage(named: "noInternet.png"))
                     self.frame.origin.y = CGFloat(250)
+                } else {
+                    self.frame.origin.y = CGFloat(100)
                 }
             }
         }
     }
-    
-    func startLoadingAnimation() {
-        activityIndicator.startAnimating()
-    }
-    
-    func stopLoadingAnimation() {
-        activityIndicator.stopAnimating()
-        activityIndicator.removeFromSuperview()
-    }
-
+    // Animation without fadeIn
+//    func animateStoneAppearance(isWindy: Bool) {
+//        guard !isAnimating else {
+//            return
+//        }
+//
+//        isAnimating = true
+//
+//        let rockingDistance: CGFloat = -20.0
+//        let rockingDuration: TimeInterval = 1.0
+//
+//        UIView.animate(withDuration: rockingDuration, delay: 0, options: [.curveEaseInOut, .autoreverse, .repeat], animations: {
+//            self.stoneImageView.center.x -= rockingDistance
+//        }, completion: nil)
+//    }
+    // Animation with fadeIn
     func animateStoneAppearance(isWindy: Bool) {
-        // Если анимация уже запущена, не запускайте её снова
         guard !isAnimating else {
             return
         }
 
         isAnimating = true
+        self.stoneImageView.layer.removeAllAnimations()
 
-        // Определяем начальную позицию вершины камня (выше экрана)
-        let initialPosition = stoneImageView.frame.origin.y - 100
-
-        // Определяем финальную позицию вершины камня (0)
-        let finalPosition: CGFloat = 0
- 
-        let numberOfRebounds = 5
-
-        func animateWithRebound(currentRebound: Int) {
-            UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 0.3, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
-                if currentRebound < numberOfRebounds {
-                    self.stoneImageView.frame.origin.y = finalPosition + 00
-                } else {
-//                    self.stoneImageView.frame.origin.y = finalPosition + 200
-                }
-            }, completion: { _ in
-                if currentRebound < numberOfRebounds {
-                    animateWithRebound(currentRebound: currentRebound + 1)
-                } else {
-                    // По завершении анимации, сбрасываем флаг анимации
-                    self.isAnimating = false
-
-                    if isWindy {
-                        self.animateRockingStone()
-                    }
-                }
-            })
-        }
-
-        // Запускаем анимацию с текущим количеством отскоков 0
-        animateWithRebound(currentRebound: 0)
-    }
-    
-  
-
-
-    private func animateRockingStone() {
         let rockingDistance: CGFloat = -20.0
-        let rockingDuration: TimeInterval = 1.0
-        
+        let rockingDuration: TimeInterval = 1.1
+        let fadeInDuration: TimeInterval = 1.2
+        // alpha сначала
+        self.stoneImageView.alpha = 0.0
+        // Fade in
+        UIView.animate(withDuration: fadeInDuration, animations: {
+            self.stoneImageView.alpha = 1.0
+        })
+        // Rocking
         UIView.animate(withDuration: rockingDuration, delay: 0, options: [.curveEaseInOut, .autoreverse, .repeat], animations: {
             self.stoneImageView.center.x -= rockingDistance
         }, completion: nil)
     }
-} // end
+} // end stone view
 //MARK: State
 extension StoneView {
     enum State: Equatable {

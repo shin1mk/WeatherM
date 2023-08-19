@@ -16,6 +16,7 @@ import CoreLocation
 import Network
 
 final class MainViewController: UIViewController {
+
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
@@ -32,7 +33,6 @@ final class MainViewController: UIViewController {
     private let locationManager = CLLocationManager()
     private let refreshControl = UIRefreshControl()
 
-//    private var isAnimatingStone = false
     private var isConnected = true
     private var windSpeed: Double = 0.0
     // Scroll & Content
@@ -83,12 +83,12 @@ final class MainViewController: UIViewController {
         stoneView.snp.makeConstraints { make in
             make.centerX.equalTo(contentView)
             make.trailing.leading.equalTo(contentView)
-            make.top.equalTo(contentView.snp.top).offset(-100)
+            make.top.equalTo(contentView.snp.top).offset(100)
         }
         // weather view
         view.addSubview(weatherView)
         weatherView.snp.makeConstraints { make in
-            make.centerX.equalTo(view)
+            make.centerX.equalToSuperview()
             make.bottom.equalTo(view.snp.bottom).inset(350)
             make.horizontalEdges.equalToSuperview().inset(25)
         }
@@ -175,6 +175,9 @@ final class MainViewController: UIViewController {
     // RefreshWeather
     @objc private func refreshWeather() {
         startNetworkMonitoring()
+        // Update the UI
+        weatherView.temperatureLabel.text = "update"
+        weatherView.conditionLabel.text = "update"
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if self.isConnected {
                 guard let location = self.locationManager.location else { return }
@@ -186,8 +189,26 @@ final class MainViewController: UIViewController {
             self.refreshControl.endRefreshing()
         }
     }
+    
+//    @objc private func refreshWeather() {
+//        startNetworkMonitoring()
+//        // Update the UI
+//        weatherView.temperatureLabel.text = "update"
+//        weatherView.conditionLabel.text = "update"
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//            if self.isConnected {
+//                guard let location = self.locationManager.location else {
+//                    return
+//                }
+//                self.updateLocationData(for: location)
+//            }
+//            self.refreshControl.endRefreshing()
+//        }
+//    }
 
-} // end MainViewController
+
+} // end
 //MARK: Location
 extension MainViewController: CLLocationManagerDelegate {
     // Location Manager
