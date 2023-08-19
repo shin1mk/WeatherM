@@ -49,11 +49,11 @@ final class WeatherView: UIView {
         }
     }
     
-    func setTemperature(temperature: String) {
-        temperatureLabel.text = temperature
-    }
+//    func setTemperature(temperature: String) {
+//        temperatureLabel.text = temperature
+//    }
 
-    func setCondition(condition: String) {
-        conditionLabel.text = condition
-    }
+//    func setCondition(condition: String) {
+//        conditionLabel.text = condition
+//    }
 }

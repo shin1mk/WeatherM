@@ -176,8 +176,8 @@ final class MainViewController: UIViewController {
     @objc private func refreshWeather() {
         startNetworkMonitoring()
         // Update the UI
-        weatherView.temperatureLabel.text = "update"
-        weatherView.conditionLabel.text = "update"
+        weatherView.temperatureLabel.text = "--°"
+        weatherView.conditionLabel.text = "-"
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if self.isConnected {
                 guard let location = self.locationManager.location else { return }
@@ -189,25 +189,6 @@ final class MainViewController: UIViewController {
             self.refreshControl.endRefreshing()
         }
     }
-    
-//    @objc private func refreshWeather() {
-//        startNetworkMonitoring()
-//        // Update the UI
-//        weatherView.temperatureLabel.text = "update"
-//        weatherView.conditionLabel.text = "update"
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//            if self.isConnected {
-//                guard let location = self.locationManager.location else {
-//                    return
-//                }
-//                self.updateLocationData(for: location)
-//            }
-//            self.refreshControl.endRefreshing()
-//        }
-//    }
-
-
 } // end
 //MARK: Location
 extension MainViewController: CLLocationManagerDelegate {
@@ -227,7 +208,6 @@ extension MainViewController: CLLocationManagerDelegate {
                 self.locationView.locationLabel.text = complitionData.city + ", " + complitionData.country
                 self.stoneView.updateWeatherData(complitionData, isConnected: self.isConnected)
                 self.windSpeed = complitionData.windSpeed
-                print("condition code - \(complitionData.cod)")
             }
         }
     }

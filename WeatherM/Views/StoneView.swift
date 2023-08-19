@@ -50,9 +50,6 @@ final class StoneView: UIView {
     }
     // UpdateWeatherState
     func updateWeatherState(_ state: State, _ windSpeed: Double, _ isConnected: Bool) {
-        print("стейт апдейт везер: \(state)")
-        print("скорость ветра: \(windSpeed)")
-
         switch state {
         case .rain(windy: let isWindy):
             if isWindy {
@@ -132,7 +129,6 @@ final class StoneView: UIView {
         guard !isAnimating else {
             return
         }
-
         isAnimating = true
         self.stoneImageView.layer.removeAllAnimations()
 
