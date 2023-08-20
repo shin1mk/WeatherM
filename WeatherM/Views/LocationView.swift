@@ -75,4 +75,3 @@ final class LocationView: UIView {
         locationLabel.text = text
     }
 }
-

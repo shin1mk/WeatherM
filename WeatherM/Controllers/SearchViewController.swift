@@ -97,7 +97,23 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
             let countryCode = String(components.last ?? "")
             // Вызываем функцию updateCountry
             countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
-                // update UI
+                // Создаем viewData на основе полученных данных
+                let temperature = "\(completionData.temperature)°"
+                let weather = completionData.weather
+                let viewData = ViewData(temperature: temperature, weather: weather)
+                
+                // Устанавливаем viewData в вашем WeatherView
+                self.weatherView.viewData = viewData
+                
+                // Другие обновления интерфейса
+                self.locationView.locationLabel.text = completionData.city + ", " + completionData.country
+                self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
+                self.windSpeed = completionData.windSpeed
+                
+                // Закрываем клавиатуру и скрываем таблицу
+                self.searchBar.text = selectedCity
+                self.tableView.isHidden = false
+                self.searchBar.resignFirstResponder()
             }
         }
         searchBar.resignFirstResponder() // Закрываем клавиатуру

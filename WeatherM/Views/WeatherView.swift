@@ -56,4 +56,18 @@ final class WeatherView: UIView {
 //    func setCondition(condition: String) {
 //        conditionLabel.text = condition
 //    }
+    
+    var viewData: ViewData? {
+            didSet {
+                temperatureLabel.text = viewData?.temperature
+                conditionLabel.text = viewData?.weather
+            }
+        }
+    // Methods
+      func updateData(_ data: CompletionData) {
+          let viewData = ViewData(temperature: "\(data.temperature)°", weather: data.weather)
+          self.viewData = viewData
+          // Выполните любые дополнительные действия или обновления по мере необходимости
+      }
 }
+

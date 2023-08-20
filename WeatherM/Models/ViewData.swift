@@ -9,6 +9,10 @@ import Foundation
 
 struct ViewData {
     let temperature: String
-    let city: String
     let weather: String
+
+    init(temperature: String, weather: String) {
+        self.temperature = temperature
+        self.weather = weather
+    }
 }
