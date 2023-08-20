@@ -30,7 +30,8 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CityCell")
         return tableView
     }()
-    var cities = ["Texas", "Forde", "Roros", "Dalvik", "Hofn", "Denver", "Dnipro", "Kyiv", "Keflavik"] // список городов
+    var cities = CityData.cities
+
     var filteredCities: [String] = []
     //MARK: LifeCycle
     override func viewDidLoad() {
@@ -68,40 +69,35 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
     }
     // Search Bar
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-            if searchText.isEmpty {
-                filteredCities = []
-            } else {
-                filteredCities = cities.filter { $0.lowercased().contains(searchText.lowercased()) }
-            }
-            print("Filtered cities: \(filteredCities)")
-            tableView.reloadData() // Обновляем
-            tableView.isHidden = filteredCities.isEmpty
-            
-            // Вызываем функцию updateCountry, когда пользователь вводит город
-            if let selectedCity = filteredCities.first {
-                // Парсим выбранный город и код страны (если они есть)
-                let components = selectedCity.split(separator: ",")
-                let city = String(components.first ?? "")
-                let countryCode = String(components.last ?? "")
-                
-                // Вызываем функцию updateCountry для получения данных о погоде
-                countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
-                    // Вы можете сделать что-то с полученными данными о погоде
-                    print("Текущая температура в \(selectedCity): \(completionData.temperature)°C")
-                    print("Скорость ветра в \(selectedCity): \(completionData.windSpeed) м/с")
-                }
-            }
+        if searchText.isEmpty {
+            filteredCities = []
+        } else {
+            filteredCities = cities.filter { $0.lowercased().contains(searchText.lowercased()) }
         }
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        if let selectedCity = searchBar.text {
-            // Парсим выбранный город и код страны (если они есть)
+        print("Filtered cities: \(filteredCities)")
+        tableView.reloadData() // Обновляем таблицу
+        tableView.isHidden = filteredCities.isEmpty
+        // Вызываем функцию updateCountry когда ввожу город
+        if let selectedCity = filteredCities.first {
             let components = selectedCity.split(separator: ",")
             let city = String(components.first ?? "")
             let countryCode = String(components.last ?? "")
-            
-            // Вызываем функцию fetchWeather для получения данных о погоде
+            // получаем данные о погоде
             countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
-                // Вы можете сделать что-то с этой температурой, например, отобразить ее на экране
+                print("Текущая температура в \(selectedCity): \(completionData.temperature)°C")
+                print("Скорость ветра в \(selectedCity): \(completionData.windSpeed) м/с")
+            }
+        }
+    }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        if let selectedCity = searchBar.text {
+            // Парсим
+            let components = selectedCity.split(separator: ",")
+            let city = String(components.first ?? "")
+            let countryCode = String(components.last ?? "")
+            // Вызываем функцию updateCountry
+            countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
+                // update UI
             }
         }
         searchBar.resignFirstResponder() // Закрываем клавиатуру
@@ -112,23 +108,23 @@ extension SearchViewController: UIGestureRecognizerDelegate {
     // Gestures
     private func setupGestures() {
         let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissSearchView))
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        //        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         swipeGesture.direction = .down
-//        tapGesture.delegate = self
+        //        tapGesture.delegate = self
         view.addGestureRecognizer(swipeGesture)
-//        view.addGestureRecognizer(tapGesture)
+        //        view.addGestureRecognizer(tapGesture)
     }
     // Dismiss
     @objc private func dismissSearchView() {
         dismiss(animated: true, completion: nil)
     }
-    // Tap
-//    @objc private func handleTap(sender: UITapGestureRecognizer) {
-//        let tapLocation = sender.location(in: view)
-//        if !tableView.frame.contains(tapLocation) {
-//            searchBar.endEditing(true)
-//        }
-//    }
+    // Tap что б клавиатура скрывалась по тапу
+    //    @objc private func handleTap(sender: UITapGestureRecognizer) {
+    //        let tapLocation = sender.location(in: view)
+    //        if !tableView.frame.contains(tapLocation) {
+    //            searchBar.endEditing(true)
+    //        }
+    //    }
 }
 //MARK: Table View
 extension SearchViewController: UITableViewDelegate {
@@ -156,63 +152,25 @@ extension SearchViewController: UITableViewDelegate {
         countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
             let temperature = completionData.temperature
             let windSpeed = completionData.windSpeed
-
+            
             print("Текущая температура в \(selectedCity): \(temperature)°C")
             print("Скорость ветра в \(selectedCity): \(windSpeed) м/с")
-
             
-            // Обновите ваш интерфейс с информацией о погоде здесь
+            
+            // Обновите  UI
             DispatchQueue.main.async {
-                // Например, обновите UILabels на экране
                 self.weatherView.temperatureLabel.text = "\(completionData.temperature)°"
                 self.weatherView.conditionLabel.text = completionData.weather
                 self.locationView.locationLabel.text = completionData.city + ", " + completionData.country
                 self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
                 self.windSpeed = completionData.windSpeed
-                // сворачиваем по нажатию на выбранный город
+                // сворачиваем по нажатию на город
                 self.dismiss(animated: true, completion: nil)
             }
         }
-
         searchBar.text = selectedCity
         tableView.isHidden = false
         searchBar.resignFirstResponder()
     }
 }
 
-//extension SearchViewController {
-//    func fetchWeather(for city: String, countryCode: String, completion: @escaping (Int, Double) -> Void) {
-//        let apiKey = "57f0aada42de195465afd5586ed94a91"
-//        let urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(city),\(countryCode)&appid=\(apiKey)&units=metric"
-//        
-//        if let url = URL(string: urlString) {
-//            let task = URLSession.shared.dataTask(with: url) { data, response, error in
-//                if let error = error {
-//                    print("Ошибка: \(error)")
-//                    print("Error: \(error.localizedDescription)")
-//                    return
-//                }
-//                
-//                if let data = data {
-//                    do {
-//                        if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-//                            if let main = json["main"] as? [String: Any],
-//                               let temperature = main["temp"] as? Double,
-//                               let wind = json["wind"] as? [String: Any],
-//                               let windSpeed = wind["speed"] as? Double {
-//                                completion(Int(ceil(temperature)), windSpeed)
-//                            } else {
-//                                print("Ошибка при получении данных о погоде.")
-//                            }
-//                        }
-//                    } catch {
-//                        print("Ошибка при обработке ответа: \(error)")
-//                    }
-//                }
-//            }
-//            task.resume()
-//        } else {
-//            print("Ошибка в URL.")
-//        }
-//    }
-//}

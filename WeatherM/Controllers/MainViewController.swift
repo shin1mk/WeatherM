@@ -16,7 +16,6 @@ import CoreLocation
 import Network
 
 final class MainViewController: UIViewController {
-
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
