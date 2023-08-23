@@ -22,6 +22,7 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         searchBar.placeholder = "Search for a city"
         searchBar.backgroundImage = UIImage()
         searchBar.becomeFirstResponder()
+
         return searchBar
     }()
     private let tableView: UITableView = {
