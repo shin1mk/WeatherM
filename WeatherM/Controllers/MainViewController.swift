@@ -18,7 +18,7 @@ import Network
 final class MainViewController: UIViewController, LocationDelegate {
     func didUpdateLocationLabel(_ text: String) {
         print("MainViewController received updated location text: \(text)")
-        self.locationView.setLocationLabelText(text)
+        locationView.setLocationLabelText(text)
     }
     
     private let backgroundImageView: UIImageView = {
@@ -34,6 +34,8 @@ final class MainViewController: UIViewController, LocationDelegate {
     private let infoButton = InfoButton()
     private let infoView = InfoView()
     private let searchViewController = SearchViewController()
+
+
     
     private let locationManager = CLLocationManager()
     private let refreshControl = UIRefreshControl()
@@ -54,10 +56,10 @@ final class MainViewController: UIViewController, LocationDelegate {
         setupConstraints()
         setupTargets()
         setupLocationManager()
-        setupSearchBarDelegate()
         setupInfoViewDelegate()
         hideComponents()
         startNetworkMonitoring()
+        setupSearchBarDelegate()
     }
     //MARK: Methods
     private func hideComponents() {
@@ -218,7 +220,6 @@ extension MainViewController: UISearchBarDelegate {
     private func setupSearchBarDelegate() {
         locationManager.delegate = self
         locationView.delegate = self
-        searchViewController.locationDelegate = self
     }
     // Targers
     private func setupTargets() {
@@ -252,6 +253,7 @@ extension MainViewController {
     @objc private func searchIconTapped() {
         print("search button tapped")
         let searchViewController = SearchViewController()
+        searchViewController.locationDelegate = self
         searchViewController.modalPresentationStyle = .popover
         present(searchViewController, animated: true, completion: nil)
     }
