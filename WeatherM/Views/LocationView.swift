@@ -8,9 +8,14 @@
 import UIKit
 import SnapKit
 
+protocol LocationDelegate: AnyObject {
+    func didUpdateLocationLabel(_ text: String)
+}
+
 final class LocationView: UIView {
     //MARK: Properties
-    let locationLabel: UILabel = {
+    weak var delegate: LocationDelegate?
+    private let locationLabel: UILabel = {
         let locationLabel = UILabel()
         locationLabel.text = "Location"
         locationLabel.font = UIFont.ubuntuMedium(ofSize: 17)

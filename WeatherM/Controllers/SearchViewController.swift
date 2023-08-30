@@ -9,7 +9,13 @@ import UIKit
 import SnapKit
 import Foundation
 
+
 final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource {
+    func didUpdateLocationLabel(_ text: String) {
+        print("Location label updated with text: \(text)")
+        locationDelegate?.didUpdateLocationLabel(text)
+    }
+    weak var locationDelegate: LocationDelegate?
     private let countryManager = CountryManager(queue: DispatchQueue(label: "CountryManager_working_queue", qos: .userInitiated))
     private let stoneView = StoneView()
     private let weatherView = WeatherView()
@@ -22,7 +28,6 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         searchBar.placeholder = "Search for a city"
         searchBar.backgroundImage = UIImage()
         searchBar.becomeFirstResponder()
-
         return searchBar
     }()
     private let tableView: UITableView = {
@@ -32,7 +37,6 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         return tableView
     }()
     var cities = CityData.cities
-
     var filteredCities: [String] = []
     //MARK: LifeCycle
     override func viewDidLoad() {
@@ -107,7 +111,7 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
                 self.weatherView.viewData = viewData
                 
                 // Другие обновления интерфейса
-                self.locationView.locationLabel.text = completionData.city + ", " + completionData.country
+                self.didUpdateLocationLabel(completionData.city + ", " + completionData.country)
                 self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
                 self.windSpeed = completionData.windSpeed
                 
@@ -169,16 +173,13 @@ extension SearchViewController: UITableViewDelegate {
         countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
             let temperature = completionData.temperature
             let windSpeed = completionData.windSpeed
-            
             print("Текущая температура в \(selectedCity): \(temperature)°C")
             print("Скорость ветра в \(selectedCity): \(windSpeed) м/с")
-            
-            
-            // Обновите  UI
+            // Обновить UI
             DispatchQueue.main.async {
                 self.weatherView.temperatureLabel.text = "\(completionData.temperature)°"
                 self.weatherView.conditionLabel.text = completionData.weather
-                self.locationView.locationLabel.text = completionData.city + ", " + completionData.country
+                self.didUpdateLocationLabel(completionData.city + ", " + completionData.country)
                 self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
                 self.windSpeed = completionData.windSpeed
                 // сворачиваем по нажатию на город
@@ -186,8 +187,8 @@ extension SearchViewController: UITableViewDelegate {
             }
         }
         searchBar.text = selectedCity
-        tableView.isHidden = false
         searchBar.resignFirstResponder()
+        tableView.isHidden = false
     }
 }
 

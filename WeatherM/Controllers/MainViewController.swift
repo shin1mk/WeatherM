@@ -6,13 +6,6 @@
 //
 
 /*
- 
- /* запихнуть локейшен вью в везер вью
-  и менеджеры в один файл просто разные функции
- delaem cherez delegate kak infoview
-  сделать что бы при разных темах белая черная серч бар был виден
-  */
-
  Dnepr
  48,4647
  35,0462
@@ -22,7 +15,12 @@ import SnapKit
 import CoreLocation
 import Network
 
-final class MainViewController: UIViewController {
+final class MainViewController: UIViewController, LocationDelegate {
+    func didUpdateLocationLabel(_ text: String) {
+        print("MainViewController received updated location text: \(text)")
+        self.locationView.setLocationLabelText(text)
+    }
+    
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
@@ -35,6 +33,7 @@ final class MainViewController: UIViewController {
     private let locationView = LocationView()
     private let infoButton = InfoButton()
     private let infoView = InfoView()
+    private let searchViewController = SearchViewController()
     
     private let locationManager = CLLocationManager()
     private let refreshControl = UIRefreshControl()
@@ -138,18 +137,13 @@ final class MainViewController: UIViewController {
                     print("No internet connection.")
                     self?.weatherView.temperatureLabel.text = "--°"
                     self?.weatherView.conditionLabel.text = "-"
-                    self?.locationView.locationLabel.text = "no internet"
+                    self?.didUpdateLocationLabel("no internet")
                     self?.stoneView.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
                 }
             }
         }
         monitor.start(queue: queue)
     }
-    // updateWeatherData
-//    private func updateWeatherData(_ data: CompletionData, isConnected: Bool) {
-//        print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
-//        stoneView.updateWeatherState(.normal(windy: false), data.windSpeed, isConnected)
-//    }
     // Request geo/start geo
     private func setupLocationManager() {
         locationManager.requestWhenInUseAuthorization()
@@ -211,7 +205,7 @@ extension MainViewController: CLLocationManagerDelegate {
             DispatchQueue.main.async {
                 self.weatherView.temperatureLabel.text = "\(complitionData.temperature)°"
                 self.weatherView.conditionLabel.text = complitionData.weather
-                self.locationView.locationLabel.text = complitionData.city + ", " + complitionData.country
+                self.didUpdateLocationLabel(complitionData.city + ", " + complitionData.country)
                 self.stoneView.updateWeatherData(complitionData, isConnected: self.isConnected)
                 self.windSpeed = complitionData.windSpeed
             }
@@ -223,6 +217,8 @@ extension MainViewController: UISearchBarDelegate {
     // Search Bar Delegate
     private func setupSearchBarDelegate() {
         locationManager.delegate = self
+        locationView.delegate = self
+        searchViewController.locationDelegate = self
     }
     // Targers
     private func setupTargets() {
@@ -254,6 +250,7 @@ extension MainViewController {
     }
     // Search button action
     @objc private func searchIconTapped() {
+        print("search button tapped")
         let searchViewController = SearchViewController()
         searchViewController.modalPresentationStyle = .popover
         present(searchViewController, animated: true, completion: nil)

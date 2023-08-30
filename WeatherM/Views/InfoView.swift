@@ -116,7 +116,6 @@ final class InfoView: UIView {
     @objc private func hideButtonTapped() {
         hideButton.setTitleColor(UIColor.white, for: .highlighted)
         hideButtonAnimation()
-        
         delegate?.hideInfoView()
     }
 }
