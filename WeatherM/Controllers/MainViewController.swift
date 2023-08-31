@@ -16,8 +16,6 @@ import CoreLocation
 import Network
 
 final class MainViewController: UIViewController, LocationDelegate, WeatherDelegate {
-
-    weak var weatherDelegate: WeatherDelegate?
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit

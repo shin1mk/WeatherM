@@ -26,6 +26,6 @@ struct CityData {
         "Accra", "Lagos", "Nairobi", "Dakar", "Casablanca", "Tunis", "Tripoli", "Alexandria", "Baghdad", "Kuwait",
         "Doha", "Muscat", "Manama", "Riyadh", "Jeddah", "Medina", "Mecca", "Amman", "Beirut", "Damascus",
         "Khartoum", "Addis Ababa", "Nairobi", "Luanda", "Kinshasa", "Brazzaville", "Yaoundé", "Abuja", "Lome", "Nouakchott",
-        "Bamako", "Ouagadougou", "Niamey", "Cotonou", "Lome", "Monrovia", "Freetown", "Conakry", "Bissau", "Banjul"
+        "Bamako", "Ouagadougou", "Niamey", "Cotonou", "Lome", "Monrovia", "Freetown", "Conakry", "Bissau", "Banjul", "Tashkent"
     ]
 }

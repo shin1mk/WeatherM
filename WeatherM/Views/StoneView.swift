@@ -10,7 +10,7 @@ import SnapKit
 import Network
 
 final class StoneView: UIView {
-    private var windSpeed: Double = 0.0
+    var windSpeed: Double = 0.0
     private var isConnected = true
     private var isAnimating = false
     private var stoneImageView = UIImageView()

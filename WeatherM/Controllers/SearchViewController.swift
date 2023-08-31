@@ -9,23 +9,7 @@ import UIKit
 import SnapKit
 import Foundation
 
-
-
 final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource {
-    func didUpdateLocationLabel(_ text: String) {
-        locationDelegate?.didUpdateLocationLabel(text)
-    }
-    func weatherViewDidTemperature(_ text: String) {
-        print("SearchViewController received updated temperature text: \(text)")
-        weatherDelegate?.weatherViewDidTemperature(text)
-    }
-    
-    func weatherViewDidCondition(_ text: String) {
-        print("SearchViewController received updated condition text: \(text)")
-
-        weatherDelegate?.weatherViewDidCondition(text)
-    }
-
     weak var locationDelegate: LocationDelegate?
     weak var weatherDelegate: WeatherDelegate?
     private let countryManager = CountryManager(queue: DispatchQueue(label: "CountryManager_working_queue", qos: .userInitiated))
@@ -114,19 +98,10 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
             let countryCode = String(components.last ?? "")
             // Вызываем функцию updateCountry
             countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
-                // Создаем viewData на основе полученных данных
-                let temperature = "\(completionData.temperature)°"
-                let weather = completionData.weather
-                let viewData = ViewData(temperature: temperature, weather: weather)
-                
-                // Устанавливаем viewData в вашем WeatherView
-//                self.weatherView.viewData = viewData
-                
                 // Другие обновления интерфейса
                 self.didUpdateLocationLabel(completionData.city + ", " + completionData.country)
                 self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
-                self.windSpeed = completionData.windSpeed
-                
+                self.stoneView.windSpeed = completionData.windSpeed
                 // Закрываем клавиатуру и скрываем таблицу
                 self.searchBar.text = selectedCity
                 self.tableView.isHidden = false
@@ -135,29 +110,33 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         }
         searchBar.resignFirstResponder() // Закрываем клавиатуру
     }
+    
+    func didUpdateLocationLabel(_ text: String) {
+        locationDelegate?.didUpdateLocationLabel(text)
+    }
+    
+    func weatherViewDidTemperature(_ text: String) {
+        print("SearchViewController received updated temperature text: \(text)")
+        weatherDelegate?.weatherViewDidTemperature(text)
+    }
+    
+    func weatherViewDidCondition(_ text: String) {
+        print("SearchViewController received updated condition text: \(text)")
+        weatherDelegate?.weatherViewDidCondition(text)
+    }
 } // end SearchViewController
 //MARK: Gestures
 extension SearchViewController: UIGestureRecognizerDelegate {
     // Gestures
     private func setupGestures() {
         let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissSearchView))
-        //        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         swipeGesture.direction = .down
-        //        tapGesture.delegate = self
         view.addGestureRecognizer(swipeGesture)
-        //        view.addGestureRecognizer(tapGesture)
     }
     // Dismiss
     @objc private func dismissSearchView() {
         dismiss(animated: true, completion: nil)
     }
-    // Tap что б клавиатура скрывалась по тапу
-    //    @objc private func handleTap(sender: UITapGestureRecognizer) {
-    //        let tapLocation = sender.location(in: view)
-    //        if !tableView.frame.contains(tapLocation) {
-    //            searchBar.endEditing(true)
-    //        }
-    //    }
 }
 //MARK: Table View
 extension SearchViewController: UITableViewDelegate {
@@ -203,4 +182,3 @@ extension SearchViewController: UITableViewDelegate {
         tableView.isHidden = false
     }
 }
-

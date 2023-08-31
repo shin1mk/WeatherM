@@ -10,13 +10,11 @@ import SnapKit
 
 protocol WeatherDelegate: AnyObject {
     func weatherViewDidTemperature(_ text: String)
-    
     func weatherViewDidCondition(_ text: String)
 }
 
 final class WeatherView: UIView {
     weak var weatherDelegate: WeatherDelegate?
-
     //MARK: Properties
     private let temperatureLabel: UILabel = {
         let temperatureLabel = UILabel()
@@ -60,25 +58,10 @@ final class WeatherView: UIView {
     func setTemperature(temperature: String) {
         temperatureLabel.text = temperature
         weatherDelegate?.weatherViewDidTemperature(temperature)
-
     }
     
     func setCondition(condition: String) {
         conditionLabel.text = condition
         weatherDelegate?.weatherViewDidCondition(condition)
-
     }
-    
-//    var viewData: ViewData? {
-//        didSet {
-//            temperatureLabel.text = viewData?.temperature
-//            conditionLabel.text = viewData?.weather
-//        }
-//    }
-    // Methods
-//    func updateData(_ data: CompletionData) {
-//        let viewData = ViewData(temperature: "\(data.temperature)°", weather: data.weather)
-//        self.viewData = viewData
-//        // Выполните любые дополнительные действия или обновления по мере необходимости
-//    }
 }
