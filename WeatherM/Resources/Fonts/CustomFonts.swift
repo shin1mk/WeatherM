@@ -22,4 +22,3 @@ extension UIFont {
         return UIFont(name: "Ubuntu-Bold", size: size)
     }
 }
-

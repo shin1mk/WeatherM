@@ -44,9 +44,9 @@ final class StoneView: UIView {
         stoneImageView.image = image
     }
     // UpdateWeatherData
-     func updateWeatherData(_ data: CompletionData, isConnected: Bool) {
+    func updateWeatherData(_ data: CompletionData, isConnected: Bool) {
         print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
-         updateWeatherState(.normal(windy: data.windSpeed >= 3), data.windSpeed, isConnected)
+        updateWeatherState(.normal(windy: data.windSpeed >= 3), data.windSpeed, isConnected)
     }
     // UpdateWeatherState
     func updateWeatherState(_ state: State, _ windSpeed: Double, _ isConnected: Bool) {
@@ -109,21 +109,6 @@ final class StoneView: UIView {
             }
         }
     }
-    // Animation without fadeIn
-//    func animateStoneAppearance(isWindy: Bool) {
-//        guard !isAnimating else {
-//            return
-//        }
-//
-//        isAnimating = true
-//
-//        let rockingDistance: CGFloat = -20.0
-//        let rockingDuration: TimeInterval = 1.0
-//
-//        UIView.animate(withDuration: rockingDuration, delay: 0, options: [.curveEaseInOut, .autoreverse, .repeat], animations: {
-//            self.stoneImageView.center.x -= rockingDistance
-//        }, completion: nil)
-//    }
     // Animation with fadeIn
     func animateStoneAppearance(isWindy: Bool) {
         guard !isAnimating else {

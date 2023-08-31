@@ -21,5 +21,3 @@ struct CityData {
         "Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa", "Quebec City", "Winnipeg", "Hamilton", "Halifax"
     ]
 }
-
-

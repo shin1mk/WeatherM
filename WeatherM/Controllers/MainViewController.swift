@@ -16,26 +16,18 @@ import CoreLocation
 import Network
 
 final class MainViewController: UIViewController, LocationDelegate {
-    func didUpdateLocationLabel(_ text: String) {
-        print("MainViewController received updated location text: \(text)")
-        locationView.setLocationLabelText(text)
-    }
-    
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
         return backgroundImage
     }()
-    //MARK: - Import view's
+    // Import view's
     private let stoneView = StoneView()
     private let weatherView = WeatherView()
     private let weatherManager = WeatherManager()
     private let locationView = LocationView()
     private let infoButton = InfoButton()
     private let infoView = InfoView()
-    private let searchViewController = SearchViewController()
-
-
     
     private let locationManager = CLLocationManager()
     private let refreshControl = UIRefreshControl()
@@ -57,13 +49,14 @@ final class MainViewController: UIViewController, LocationDelegate {
         setupTargets()
         setupLocationManager()
         setupInfoViewDelegate()
-        hideComponents()
         startNetworkMonitoring()
         setupSearchBarDelegate()
+        hideComponents()
     }
     //MARK: Methods
-    private func hideComponents() {
-        infoView.isHidden = true
+    func didUpdateLocationLabel(_ text: String) {
+        print("MainViewController received updated location text: \(text)")
+        locationView.setLocationLabelText(text)
     }
     // Constraints
     private func setupConstraints() {
@@ -219,7 +212,7 @@ extension MainViewController: UISearchBarDelegate {
     // Search Bar Delegate
     private func setupSearchBarDelegate() {
         locationManager.delegate = self
-        locationView.delegate = self
+        locationView.locationDelegate = self
     }
     // Targers
     private func setupTargets() {
@@ -232,9 +225,13 @@ extension MainViewController: UISearchBarDelegate {
 //MARK: InfoViewDelegate
 extension MainViewController: InfoViewDelegate {
     private func setupInfoViewDelegate() {
-        infoView.delegate = self
+        infoView.infoDelegate = self
     }
-
+    // infoView is hidden
+    private func hideComponents() {
+        infoView.isHidden = true
+    }
+    // info view delegate
     func hideInfoView() {
         weatherView.isHidden = false
         locationView.isHidden = false

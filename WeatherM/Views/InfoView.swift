@@ -13,8 +13,7 @@ protocol InfoViewDelegate: AnyObject {
 }
 
 final class InfoView: UIView {
-    weak var delegate: InfoViewDelegate?
-
+    weak var infoDelegate: InfoViewDelegate?
     private let backgroundInfoView: UIImageView = {
         let backgroundView = UIImageView()
         backgroundView.backgroundColor = UIColor(red: 251/255, green: 95/255, blue: 41/255, alpha: 1)
@@ -116,7 +115,6 @@ final class InfoView: UIView {
     @objc private func hideButtonTapped() {
         hideButton.setTitleColor(UIColor.white, for: .highlighted)
         hideButtonAnimation()
-        delegate?.hideInfoView()
+        infoDelegate?.hideInfoView()
     }
 }
-

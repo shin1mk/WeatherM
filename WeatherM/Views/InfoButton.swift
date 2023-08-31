@@ -12,14 +12,14 @@ final class InfoButton: UIButton {
     //MARK: Init
     init() {
         super.init(frame: .zero)
-        setupConstraints()
+        informationButton()
     }
     
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
     //MARK: Methods
-    private func setupConstraints() {
+    private func informationButton() {
         self.setBackgroundImage(UIImage(named: "infoButton"), for: .normal)
         self.accessibilityIdentifier = "infoButton"
     }

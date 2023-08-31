@@ -14,7 +14,7 @@ protocol LocationDelegate: AnyObject {
 
 final class LocationView: UIView {
     //MARK: Properties
-    weak var delegate: LocationDelegate?
+    weak var locationDelegate: LocationDelegate?
     private let locationLabel: UILabel = {
         let locationLabel = UILabel()
         locationLabel.text = "Location"

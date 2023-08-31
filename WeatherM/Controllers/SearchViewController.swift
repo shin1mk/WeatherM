@@ -107,8 +107,8 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
                 let weather = completionData.weather
                 let viewData = ViewData(temperature: temperature, weather: weather)
                 
-                // Устанавливаем viewData в вашем WeatherView
-                self.weatherView.viewData = viewData
+//                // Устанавливаем viewData в вашем WeatherView
+//                self.weatherView.viewData = viewData
                 
                 // Другие обновления интерфейса
                 self.didUpdateLocationLabel(completionData.city + ", " + completionData.country)
