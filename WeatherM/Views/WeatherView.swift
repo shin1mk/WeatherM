@@ -8,9 +8,17 @@
 import UIKit
 import SnapKit
 
+protocol WeatherDelegate: AnyObject {
+    func weatherViewDidTemperature(_ text: String)
+    
+    func weatherViewDidCondition(_ text: String)
+}
+
 final class WeatherView: UIView {
+    weak var weatherDelegate: WeatherDelegate?
+
     //MARK: Properties
-     let temperatureLabel: UILabel = {
+    private let temperatureLabel: UILabel = {
         let temperatureLabel = UILabel()
         temperatureLabel.text = "--°"
         temperatureLabel.font = UIFont.ubuntuRegular(ofSize: 83)
@@ -18,7 +26,7 @@ final class WeatherView: UIView {
         temperatureLabel.textAlignment = .left
         return temperatureLabel
     }()
-     let conditionLabel: UILabel = {
+    private let conditionLabel: UILabel = {
         let conditionLabel = UILabel()
         conditionLabel.text = "-"
         conditionLabel.font = UIFont.ubuntuLight(ofSize: 36)
@@ -49,13 +57,17 @@ final class WeatherView: UIView {
         }
     }
     
-    //    func setTemperature(temperature: String) {
-    //        temperatureLabel.text = temperature
-    //    }
+    func setTemperature(temperature: String) {
+        temperatureLabel.text = temperature
+        weatherDelegate?.weatherViewDidTemperature(temperature)
+
+    }
     
-    //    func setCondition(condition: String) {
-    //        conditionLabel.text = condition
-    //    }
+    func setCondition(condition: String) {
+        conditionLabel.text = condition
+        weatherDelegate?.weatherViewDidCondition(condition)
+
+    }
     
 //    var viewData: ViewData? {
 //        didSet {

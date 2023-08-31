@@ -15,7 +15,9 @@ import SnapKit
 import CoreLocation
 import Network
 
-final class MainViewController: UIViewController, LocationDelegate {
+final class MainViewController: UIViewController, LocationDelegate, WeatherDelegate {
+
+    weak var weatherDelegate: WeatherDelegate?
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
@@ -55,8 +57,15 @@ final class MainViewController: UIViewController, LocationDelegate {
     }
     //MARK: Methods
     func didUpdateLocationLabel(_ text: String) {
-        print("MainViewController received updated location text: \(text)")
         locationView.setLocationLabelText(text)
+    }
+    func weatherViewDidTemperature(_ text: String) {
+        print("MainViewController1 received updated temperature text: \(text)")
+        weatherView.setTemperature(temperature: text)
+    }
+    func weatherViewDidCondition(_ text: String) {
+        print("MainViewController1 received updated condition text: \(text)")
+        weatherView.setCondition(condition: text)
     }
     // Constraints
     private func setupConstraints() {
@@ -130,8 +139,8 @@ final class MainViewController: UIViewController, LocationDelegate {
                     self?.stoneView.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
                 } else {
                     print("No internet connection.")
-                    self?.weatherView.temperatureLabel.text = "--°"
-                    self?.weatherView.conditionLabel.text = "-"
+                    self?.weatherViewDidTemperature("--°")
+                    self?.weatherViewDidCondition("-")
                     self?.didUpdateLocationLabel("no internet")
                     self?.stoneView.updateWeatherState(.noInternet, self?.windSpeed ?? 0.0, self?.isConnected ?? false)
                 }
@@ -171,8 +180,8 @@ final class MainViewController: UIViewController, LocationDelegate {
     @objc private func refreshWeather() {
         startNetworkMonitoring()
         // Update the UI
-        weatherView.temperatureLabel.text = "--°"
-        weatherView.conditionLabel.text = "-"
+        weatherViewDidTemperature("--°")
+        weatherViewDidCondition("-")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if self.isConnected {
                 guard let location = self.locationManager.location else { return }
@@ -198,8 +207,8 @@ extension MainViewController: CLLocationManagerDelegate {
             guard let self = self else { return }
             
             DispatchQueue.main.async {
-                self.weatherView.temperatureLabel.text = "\(complitionData.temperature)°"
-                self.weatherView.conditionLabel.text = complitionData.weather
+                self.weatherViewDidTemperature("\(complitionData.temperature)°")
+                self.weatherViewDidCondition(complitionData.weather)
                 self.didUpdateLocationLabel(complitionData.city + ", " + complitionData.country)
                 self.stoneView.updateWeatherData(complitionData, isConnected: self.isConnected)
                 self.windSpeed = complitionData.windSpeed
@@ -251,6 +260,7 @@ extension MainViewController {
         print("search button tapped")
         let searchViewController = SearchViewController()
         searchViewController.locationDelegate = self
+        searchViewController.weatherDelegate = self
         searchViewController.modalPresentationStyle = .popover
         present(searchViewController, animated: true, completion: nil)
     }

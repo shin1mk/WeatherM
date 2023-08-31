@@ -10,12 +10,24 @@ import SnapKit
 import Foundation
 
 
+
 final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource {
     func didUpdateLocationLabel(_ text: String) {
-        print("Location label updated with text: \(text)")
         locationDelegate?.didUpdateLocationLabel(text)
     }
+    func weatherViewDidTemperature(_ text: String) {
+        print("SearchViewController received updated temperature text: \(text)")
+        weatherDelegate?.weatherViewDidTemperature(text)
+    }
+    
+    func weatherViewDidCondition(_ text: String) {
+        print("SearchViewController received updated condition text: \(text)")
+
+        weatherDelegate?.weatherViewDidCondition(text)
+    }
+
     weak var locationDelegate: LocationDelegate?
+    weak var weatherDelegate: WeatherDelegate?
     private let countryManager = CountryManager(queue: DispatchQueue(label: "CountryManager_working_queue", qos: .userInitiated))
     private let stoneView = StoneView()
     private let weatherView = WeatherView()
@@ -107,7 +119,7 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
                 let weather = completionData.weather
                 let viewData = ViewData(temperature: temperature, weather: weather)
                 
-//                // Устанавливаем viewData в вашем WeatherView
+                // Устанавливаем viewData в вашем WeatherView
 //                self.weatherView.viewData = viewData
                 
                 // Другие обновления интерфейса
@@ -177,8 +189,8 @@ extension SearchViewController: UITableViewDelegate {
             print("Скорость ветра в \(selectedCity): \(windSpeed) м/с")
             // Обновить UI
             DispatchQueue.main.async {
-                self.weatherView.temperatureLabel.text = "\(completionData.temperature)°"
-                self.weatherView.conditionLabel.text = completionData.weather
+                self.weatherViewDidTemperature("\(completionData.temperature)°")
+                self.weatherViewDidCondition(completionData.weather)
                 self.didUpdateLocationLabel(completionData.city + ", " + completionData.country)
                 self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
                 self.windSpeed = completionData.windSpeed
