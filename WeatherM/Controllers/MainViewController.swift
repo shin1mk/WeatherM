@@ -6,7 +6,9 @@
 //
 
 /*
- как передать в стейт скорость ветра
+ убрать country code что б не дублировалось
+ вынести методы делегата в расширение
+
  Dnepr
  48,4647
  35,0462
@@ -16,7 +18,7 @@ import SnapKit
 import CoreLocation
 import Network
 
-final class MainViewController: UIViewController, LocationDelegate, WeatherDelegate {
+final class MainViewController: UIViewController {
     private let backgroundImageView: UIImageView = {
         let backgroundImage = UIImageView(image: UIImage(named: "image_background.png"))
         backgroundImage.contentMode = .scaleAspectFit
@@ -55,19 +57,6 @@ final class MainViewController: UIViewController, LocationDelegate, WeatherDeleg
         hideComponents()
     }
     //MARK: Methods
-    func didUpdateLocationLabel(_ text: String) {
-        locationView.setLocationLabelText(text)
-    }
-    
-    func weatherViewDidTemperature(_ text: String) {
-        weatherView.setTemperature(temperature: text)
-    }
-    
-    func weatherViewDidCondition(_ text: String) {
-        weatherView.setCondition(condition: text)
-    }
-    
-    // Constraints
     private func setupConstraints() {
         // background image
         view.addSubview(backgroundImageView)
@@ -193,7 +182,6 @@ final class MainViewController: UIViewController, LocationDelegate, WeatherDeleg
             self.refreshControl.endRefreshing()
         }
     }
-    
 } // end
 //MARK: Location
 extension MainViewController: CLLocationManagerDelegate {
@@ -232,23 +220,6 @@ extension MainViewController: UISearchBarDelegate {
         infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
     }
 }
-//MARK: InfoViewDelegate
-extension MainViewController: InfoViewDelegate {
-    private func setupInfoViewDelegate() {
-        infoView.infoDelegate = self
-    }
-    // infoView is hidden
-    private func hideComponents() {
-        infoView.isHidden = true
-    }
-    // info view delegate
-    func hideInfoView() {
-        weatherView.isHidden = false
-        locationView.isHidden = false
-        stoneView.isHidden = false
-        infoButton.isHidden = false
-    }
-}
 //MARK: Buttons action
 extension MainViewController {
     // Location button action
@@ -269,5 +240,33 @@ extension MainViewController {
     @objc private func infoButtonTapped() {
         print("info button tapped")
         infoViewAnimation()
+    }
+}
+//MARK: InfoViewDelegate
+extension MainViewController: InfoViewDelegate, LocationDelegate, WeatherDelegate {
+    private func setupInfoViewDelegate() {
+        infoView.infoDelegate = self
+    }
+    // infoView is hidden
+    private func hideComponents() {
+        infoView.isHidden = true
+    }
+    // info view delegate
+    func hideInfoView() {
+        weatherView.isHidden = false
+        locationView.isHidden = false
+        stoneView.isHidden = false
+        infoButton.isHidden = false
+    }
+    func didUpdateLocationLabel(_ text: String) {
+        locationView.setLocationLabelText(text)
+    }
+    
+    func weatherViewDidTemperature(_ text: String) {
+        weatherView.setTemperature(temperature: text)
+    }
+    
+    func weatherViewDidCondition(_ text: String) {
+        weatherView.setCondition(condition: text)
     }
 }

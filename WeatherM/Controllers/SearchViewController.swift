@@ -11,8 +11,6 @@ import Foundation
 
 final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource, StoneDelegate {
     func stoneViewDidUpdateState(_ state: StoneView.State) {
-        print("StoneView state updated to: \(state)")
-
     }
     
     weak var locationDelegate: LocationDelegate?
@@ -88,11 +86,8 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         if let selectedCity = filteredCities.first {
             let components = selectedCity.split(separator: ",")
             let city = String(components.first ?? "")
-            let countryCode = String(components.last ?? "")
             // получаем данные о погоде
-            countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
-                print("Текущая температура в \(selectedCity): \(completionData.temperature)°C")
-                print("Скорость ветра в \(selectedCity): \(completionData.windSpeed) м/с")
+            countryManager.updateCountry(for: city) { completionData in
             }
         }
     }
@@ -101,9 +96,8 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
             // Парсим
             let components = selectedCity.split(separator: ",")
             let city = String(components.first ?? "")
-            let countryCode = String(components.last ?? "")
             // Вызываем функцию updateCountry
-            countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
+            countryManager.updateCountry(for: city) { completionData in
                 // Другие обновления интерфейса
                 self.didUpdateLocationLabel(completionData.city + ", " + completionData.country)
                 self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
@@ -112,19 +106,6 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
                 self.searchBar.text = selectedCity
                 self.tableView.isHidden = false
                 self.searchBar.resignFirstResponder()
-                // Вызываем функцию для обновления состояния stoneView
-                print("Completion Data - Temperature: \(completionData.temperature)")
-                print("Completion Data - Condition Code: \(completionData.id)")
-                print("Completion Data - Wind Speed: \(completionData.windSpeed)")
-                
-                // Вызовите updateStoneViewState с новыми данными
-                self.updateStoneViewState(
-                    temperature: completionData.temperature,
-                    conditionCode: completionData.id,
-                    windSpeed: completionData.windSpeed
-                )
-                print("New StoneView State: \(self.stoneView.state)")
-
             }
         }
         searchBar.resignFirstResponder() // Закрываем клавиатуру
@@ -135,12 +116,10 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
     }
     
     func weatherViewDidTemperature(_ text: String) {
-        print("SearchViewController received updated temperature text: \(text)")
         weatherDelegate?.weatherViewDidTemperature(text)
     }
     
     func weatherViewDidCondition(_ text: String) {
-        print("SearchViewController received updated condition text: \(text)")
         weatherDelegate?.weatherViewDidCondition(text)
     }
     func updateStoneViewState(temperature: Int, conditionCode: Int, windSpeed: Double) {
@@ -184,9 +163,8 @@ extension SearchViewController: UITableViewDelegate {
         
         let components = selectedCity.split(separator: ",")
         let city = String(components.first ?? "")
-        let countryCode = String(components.last ?? "")
         
-        countryManager.updateCountry(for: city, countryCode: countryCode) { completionData in
+        countryManager.updateCountry(for: city) { completionData in
             let temperature = completionData.temperature
             let windSpeed = completionData.windSpeed
             print("Текущая температура в \(selectedCity): \(temperature)°C")

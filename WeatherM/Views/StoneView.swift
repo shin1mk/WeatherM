@@ -62,13 +62,9 @@ final class StoneView: UIView {
             if isWindy {
                 print("rain = windy")
                 self.setStoneImage(UIImage(named: "image_stone_wet.png"))
-                print("Image Set: \(stoneImageView.image?.description ?? "Image is nil")") // Add this line
-
             } else {
                 print("rain = NOT windy")
                 self.setStoneImage(UIImage(named: "image_stone_wet.png"))
-                print("Image Set: \(stoneImageView.image?.description ?? "Image is nil")") // Add this line
-
             }
             animateStoneAppearance(isWindy: isWindy)
         case .hot(windy: let isWindy):

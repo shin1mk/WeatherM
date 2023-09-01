@@ -14,11 +14,10 @@ final class CountryManager {
         self.queue = queue
     }
     
-    func updateCountry(for city: String, countryCode: String, completion: @escaping (CompletionData) -> Void) {
+    func updateCountry(for city: String, completion: @escaping (CompletionData) -> Void) {
         let apiKey = "57f0aada42de195465afd5586ed94a91"
-        let cityWithCountry = "\(city),\(countryCode)"
         
-        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=\(cityWithCountry)&appid=\(apiKey)&units=metric") else { return }
+        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=\(city)&appid=\(apiKey)&units=metric") else { return }
         queue.async {
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
                 if let data = data, let weather = try? JSONDecoder().decode(WeatherData.self, from: data) {
