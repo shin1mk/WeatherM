@@ -9,7 +9,12 @@ import UIKit
 import SnapKit
 import Foundation
 
-final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource {
+final class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource, StoneDelegate {
+    func stoneViewDidUpdateState(_ state: StoneView.State) {
+        print("StoneView state updated to: \(state)")
+
+    }
+    
     weak var locationDelegate: LocationDelegate?
     weak var weatherDelegate: WeatherDelegate?
     private let countryManager = CountryManager(queue: DispatchQueue(label: "CountryManager_working_queue", qos: .userInitiated))
@@ -67,6 +72,7 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         searchBar.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
+        stoneView.stoneDelegate = self
     }
     // Search Bar
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -106,6 +112,19 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
                 self.searchBar.text = selectedCity
                 self.tableView.isHidden = false
                 self.searchBar.resignFirstResponder()
+                // Вызываем функцию для обновления состояния stoneView
+                print("Completion Data - Temperature: \(completionData.temperature)")
+                print("Completion Data - Condition Code: \(completionData.id)")
+                print("Completion Data - Wind Speed: \(completionData.windSpeed)")
+                
+                // Вызовите updateStoneViewState с новыми данными
+                self.updateStoneViewState(
+                    temperature: completionData.temperature,
+                    conditionCode: completionData.id,
+                    windSpeed: completionData.windSpeed
+                )
+                print("New StoneView State: \(self.stoneView.state)")
+
             }
         }
         searchBar.resignFirstResponder() // Закрываем клавиатуру
@@ -124,6 +143,12 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         print("SearchViewController received updated condition text: \(text)")
         weatherDelegate?.weatherViewDidCondition(text)
     }
+    func updateStoneViewState(temperature: Int, conditionCode: Int, windSpeed: Double) {
+        // Определим State на основе данных о погоде
+        let newState = StoneView.State(temperature: temperature, conditionCode: conditionCode, windSpeed: windSpeed)
+        stoneView.state = newState
+    }
+
 } // end SearchViewController
 //MARK: Gestures
 extension SearchViewController: UIGestureRecognizerDelegate {
@@ -171,8 +196,17 @@ extension SearchViewController: UITableViewDelegate {
                 self.weatherViewDidTemperature("\(completionData.temperature)°")
                 self.weatherViewDidCondition(completionData.weather)
                 self.didUpdateLocationLabel(completionData.city + ", " + completionData.country)
-                self.stoneView.updateWeatherData(completionData, isConnected: self.isConnected)
-                self.windSpeed = completionData.windSpeed
+                
+                // Вызовите updateStoneViewState с новыми данными
+                self.updateStoneViewState(
+                    temperature: completionData.temperature,
+                    conditionCode: completionData.id,
+                    windSpeed: completionData.windSpeed
+                )
+                
+                // Теперь стейт должен обновиться и картинка в StoneView изменится.
+                print("New StoneView State: \(self.stoneView.state)")
+                
                 // сворачиваем по нажатию на город
                 self.dismiss(animated: true, completion: nil)
             }
@@ -181,4 +215,5 @@ extension SearchViewController: UITableViewDelegate {
         searchBar.resignFirstResponder()
         tableView.isHidden = false
     }
+
 }

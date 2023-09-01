@@ -9,8 +9,13 @@ import UIKit
 import SnapKit
 import Network
 
+protocol StoneDelegate: AnyObject {
+    func stoneViewDidUpdateState(_ state: StoneView.State)
+}
+
 final class StoneView: UIView {
     var windSpeed: Double = 0.0
+    weak var stoneDelegate: StoneDelegate?
     private var isConnected = true
     private var isAnimating = false
     private var stoneImageView = UIImageView()
@@ -47,6 +52,8 @@ final class StoneView: UIView {
     func updateWeatherData(_ data: CompletionData, isConnected: Bool) {
         print("-t: \(data.temperature),\n-conditionCode: \(data.id),\n-windSpeed: \(data.windSpeed)")
         updateWeatherState(.normal(windy: data.windSpeed >= 3), data.windSpeed, isConnected)
+        state = State(temperature: data.temperature, conditionCode: data.id, windSpeed: data.windSpeed)
+        stoneDelegate?.stoneViewDidUpdateState(state)
     }
     // UpdateWeatherState
     func updateWeatherState(_ state: State, _ windSpeed: Double, _ isConnected: Bool) {
@@ -55,9 +62,13 @@ final class StoneView: UIView {
             if isWindy {
                 print("rain = windy")
                 self.setStoneImage(UIImage(named: "image_stone_wet.png"))
+                print("Image Set: \(stoneImageView.image?.description ?? "Image is nil")") // Add this line
+
             } else {
                 print("rain = NOT windy")
                 self.setStoneImage(UIImage(named: "image_stone_wet.png"))
+                print("Image Set: \(stoneImageView.image?.description ?? "Image is nil")") // Add this line
+
             }
             animateStoneAppearance(isWindy: isWindy)
         case .hot(windy: let isWindy):

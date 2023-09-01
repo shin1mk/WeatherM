@@ -6,6 +6,7 @@
 //
 
 /*
+ как передать в стейт скорость ветра
  Dnepr
  48,4647
  35,0462
@@ -57,14 +58,15 @@ final class MainViewController: UIViewController, LocationDelegate, WeatherDeleg
     func didUpdateLocationLabel(_ text: String) {
         locationView.setLocationLabelText(text)
     }
+    
     func weatherViewDidTemperature(_ text: String) {
-        print("MainViewController1 received updated temperature text: \(text)")
         weatherView.setTemperature(temperature: text)
     }
+    
     func weatherViewDidCondition(_ text: String) {
-        print("MainViewController1 received updated condition text: \(text)")
         weatherView.setCondition(condition: text)
     }
+    
     // Constraints
     private func setupConstraints() {
         // background image
@@ -191,6 +193,7 @@ final class MainViewController: UIViewController, LocationDelegate, WeatherDeleg
             self.refreshControl.endRefreshing()
         }
     }
+    
 } // end
 //MARK: Location
 extension MainViewController: CLLocationManagerDelegate {
